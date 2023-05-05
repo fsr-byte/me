@@ -1,0 +1,1694 @@
+/* ***********************************************************************/
+/*                                                                       */
+/*  LIN DESCRIPTION FILE                                                 */
+/*                                                                       */
+/*  Date:          10.11.2017                                            */
+/*  Project:       MQB_A_B_E                                             */
+/*  Version:       V7.20F                                                */
+/*                                                                       */
+/*  Network:       MQB_E_Klima_LIN1                                      */
+/*  Slave(s):      AQS                 Air Quality Sensor                */
+/*                 BLOWER1             Steuergerät für Frischluftgebläse */
+/*                                     (vorn)                            */
+/*                 DS                  Drucksensor                       */
+/*                 EKK                 Elektrischer Klimakompressor      */
+/*                 EKK3                Klimakompressor Sub               */
+/*                 EKK4                Elektrischer Klimakompressor      */
+/*                 FSA                 Feuchtesensor außen               */
+/*                 HV_H                Steuergerät für                   */
+/*                                     Luftzusatzheizung/PTC; NICHT LIN3 */
+/*                 pT_Sensor1          Kaeltemittel                      */
+/*                                     Druck-Temperatur-Sensor 1         */
+/*  Master:        Klima_LIN1          Klima MQB/PQ26                    */
+/*                                                                       */
+/*  Ersteller:     Thorben Rossius (TR) VAG                              */
+/*                                                                       */
+/* ***********************************************************************/
+/*                                                                       */
+/*  SYSTEMPARAMETER                                                      */
+/*                                                                       */
+/*  Spannungsversorgung:       Klima_LIN1          Kl.30                 */
+/*                             AQS                 Kl.15                 */
+/*                             BLOWER1             Kl.30                 */
+/*                             DS                  Kl.15                 */
+/*                             EKK                 Kl.30                 */
+/*                             EKK3                Kl.30                 */
+/*                             EKK4                Kl.30                 */
+/*                             FSA                 Kl.15                 */
+/*                             HV_H                Kl.30                 */
+/*                             pT_Sensor1          Kl.15                 */
+/*                                                                       */
+/*  Sleep / WakeUp:            Klima_LIN1          Ja, CAN aktiv         */
+/*                             AQS                 Nein                  */
+/*                             BLOWER1             Nein                  */
+/*                             DS                  Nein                  */
+/*                             EKK                 Nein                  */
+/*                             EKK3                Nein                  */
+/*                             EKK4                Nein                  */
+/*                             FSA                 Nein                  */
+/*                             HV_H                Nein                  */
+/*                             pT_Sensor1          Nein                  */
+/*                                                                       */
+/*  Diagnoseklasse/Adresse:    Klima_LIN1          4     0x0008          */
+/*                             AQS                 1     0x063F          */
+/*                             BLOWER1             0     0x061B          */
+/*                             DS                  0     0x061F          */
+/*                             EKK                 2     0x065D          */
+/*                             EKK3                2     0x065D          */
+/*                             EKK4                2     0x065D          */
+/*                             FSA                 1     0x0650          */
+/*                             HV_H                1     0x0629          */
+/*                             pT_Sensor1          1                     */
+/*                                                                       */
+/*  ScheduleTable:             st_main (LIN aktiv)                       */
+/*                             st_main_nar (LIN aktiv (NAR, EKK3 & DTS)) */
+/*                             st_main_rdw_nar (LIN aktiv (bei Verbau    */
+/*                             DTS))                                     */
+/*                             st_main_OBD (LIN aktiv (bei Verbau EKK4   */
+/*                             und OBD))                                 */
+/*                             st_main2 (LIN aktiv (bei Verbau EKK4))    */
+/*                             st_EKK_Fehler (Zur Abfrgae Fehlerort      */
+/*                             EKK4)                                     */
+/*                             DiagRequest (Bei aktiver Diagnose)        */
+/*                             DiagResponse (Bei aktiver Diagnose)       */
+/*                             DiagFunktionalerRequest (OBD Funktionaler */
+/*                             Request)                                  */
+/*                                                                       */
+/*  Slave-to-Slave-Komm.:      nein                                      */
+/*                                                                       */
+/* ***********************************************************************/
+/*                                                                       */
+/*  AENDERUNGSHISTORIE                                                   */
+/*                                                                       */
+/*  21.07.2011 V7.07                                                     */
+/*             - Ersterstellung                                          */
+/*  10.11.2011 V7.08                                                     */
+/*             - Signalkodierung geändert                                */
+/*  09.11.2012 V7.10                                                     */
+/*             - Scheduletabelle geändert: st_main                       */
+/*             - Schnittstelle geändert: HV_H                            */
+/*  30.05.2013 V7.11                                                     */
+/*             - Knoten hinzugefügt: EKK3, pT_Sensor1                    */
+/*             - Signal hinzugefügt: AQS_Sensorheizung,                  */
+/*             AQS_Sensorheizung_Status                                  */
+/*             - Protokollversion geändert: DS                           */
+/*             - Scheduletabelle hinzugefügt: st_main_nar,               */
+/*             st_main_rdw_nar                                           */
+/*             - Signalkodierung geändert: BLOWER1_HW, BLOWER1_SW,       */
+/*             PTC_HV_I_ist                                              */
+/*  05.11.2013 V7.12                                                     */
+/*             - Initwert geändert: DTS1_TNCTOC                          */
+/*             - Knotenattribute geändert: EKK3                          */
+/*  23.05.2014 V7.13                                                     */
+/*             - Signal hinzugefügt: EKK3_STATE_INV_ABN_TNCTOC,          */
+/*             EKK_KL_15_Status                                          */
+/*  27.05.2015 V7.15                                                     */
+/*             - Signalkodierung geändert: FSA_Luftfeuchte_rel           */
+/*  05.11.2015 V7.16                                                     */
+/*             - keine Änderung                                          */
+/*  02.06.2016 V7.17                                                     */
+/*             - keine Änderung                                          */
+/*  10.11.2016 V7.18                                                     */
+/*             - keine Änderung                                          */
+/*  01.06.2017 V7.19                                                     */
+/*             - Knoten hinzugefügt: EKK4                                */
+/*             - Frame hinzugefügt: EKK4s_01, EKK4s_02                   */
+/*             - Signal hinzugefügt: EKKe_Q_Mask, EKKe_Level_REQ,        */
+/*             EKKe_Error_Mask_Nr, EKK_REQ_COMP_SPEED_HiRes              */
+/*             - Scheduletabelle hinzugefügt: st_main_OBD, st_main2,     */
+/*             st_EKK_Fehler                                             */
+/*  10.11.2017 V7.20                                                     */
+/*             - Empfangsbeziehung entfernt: EKK_REQ_COMP_SPEED (EKK4)   */
+/*                                                                       */
+/* ***********************************************************************/
+/*                                                                       */
+/*  HINWEIS ZUM VOLCANO-SW TREIBER:                                      */
+/*                                                                       */
+/*  Mittels "Volcano Privat File" koennen folgende Probleme geloest      */
+/*  werden:                                                              */
+/*                                                                       */
+/*    - Multimaster: identische Namen in verschiedenen LDFs              */
+/*    - Fuer den Fall "identische Sende-Signale in mehreren Botschaften" */
+/*      gilt entweder:                                                   */
+/*        - Problem loest der Treiber abhaengig vom Controller selbst    */
+/*      oder:                                                            */
+/*        - die identischen Signale eines Senders muessen umbenannt      */
+/*          werden                                                       */
+/*                                                                       */
+/* ***********************************************************************/
+/*                                                                       */
+/*  HINWEIS ZUR PRODUCT-ID:                                              */
+/*                                                                       */
+/*  Die "ProductID" fuer LIN 2.0 Slaves ist noch NICHT definiert.        */
+/*  Die derzeit verwendete bzw. im ldf eingetragene product_id ist NUR   */
+/*  als Default-Wert zur Vollständigkeit eingetragen. Die "ProductID"    */
+/*  muss eigenstaendig vom Lieferanten wie folgt angepasst zur           */
+/*  Verfuegung gestellt werden:                                          */
+/*                                                                       */
+/*  - "SupplierID" ist vom Lieferanten beim LIN Konsortium               */
+/*     zu organisieren                                                   */
+/*  - "FunctionID" ist vom Lieferanten zu verwalten                      */
+/*  - "VariantID" ist vom Lieferanten zu verwalten                       */
+/*                                                                       */
+/*  Bei jeder SW- und/oder HW-Aenderung ist die "ProductID" anzupassen!  */
+/*                                                                       */
+/* ***********************************************************************/
+LIN_description_file;
+LIN_protocol_version = "2.0";
+LIN_language_version = "2.0";
+LIN_speed = 19.2 kbps;
+Nodes {
+	Master: Klima_LIN1, 10 ms, 0.9 ms;
+	Slaves: AQS, BLOWER1, DS, EKK, EKK3, EKK4, FSA, HV_H, pT_Sensor1;
+}
+Signals {
+	AQS_COBereich: 2, 0, AQS, Klima_LIN1;
+	AQS_COStatus: 4, 0, AQS, Klima_LIN1;
+	AQS_COWert: 10, 0, AQS, Klima_LIN1;
+	AQS_HW: 4, 0, AQS, Klima_LIN1;
+	AQS_Luftguete: 4, 14, AQS, Klima_LIN1;
+	AQS_NoxBereich: 2, 0, AQS, Klima_LIN1;
+	AQS_NoxStatus: 4, 0, AQS, Klima_LIN1;
+	AQS_NoxWert: 10, 0, AQS, Klima_LIN1;
+	AQS_Parameter: 12, 0, AQS, Klima_LIN1;
+	AQS_ResponseError: 1, 0, AQS, Klima_LIN1;
+	AQS_Sensorheizung: 1, 0, Klima_LIN1, AQS;
+	AQS_Sensorheizung_Status: 1, 0, AQS, Klima_LIN1;
+	AQS_SW: 4, 0, AQS, Klima_LIN1;
+	AQS_Toggle: 2, 0, AQS, Klima_LIN1;
+	AQS_Traffic: 2, 0, AQS, Klima_LIN1;
+	Aussentemp_ungef: 8, 254, Klima_LIN1, AQS;
+	BLOWER1_HW: 4, 0, BLOWER1, Klima_LIN1;
+	BLOWER1_IBATT: 8, 0, BLOWER1, Klima_LIN1;
+	BLOWER1_IMAX_MAX: 6, 0, Klima_LIN1, BLOWER1;
+	BLOWER1_IMAX_MIN: 5, 0, Klima_LIN1, BLOWER1;
+	BLOWER1_RAMP: 4, 0, Klima_LIN1, BLOWER1;
+	BLOWER1_ResponseError: 1, 0, BLOWER1, Klima_LIN1;
+	BLOWER1_RX_FREQUENCY: 12, 0, Klima_LIN1, BLOWER1;
+	BLOWER1_SAFETY_SPEED: 8, 0, Klima_LIN1, BLOWER1;
+	BLOWER1_SAFETYRUN_THRESHOLD: 4, 0, Klima_LIN1, BLOWER1;
+	BLOWER1_SELECT: 2, 0, Klima_LIN1, BLOWER1;
+	BLOWER1_SPEED: 8, 0, Klima_LIN1, BLOWER1;
+	BLOWER1_STATUS1: 6, 0, BLOWER1, Klima_LIN1;
+	BLOWER1_STATUS2: 4, 0, BLOWER1, Klima_LIN1;
+	BLOWER1_SUPPLIER: 8, 0, BLOWER1, Klima_LIN1;
+	BLOWER1_SW: 4, 0, BLOWER1, Klima_LIN1;
+	BLOWER1_TEMPERATURE: 8, 0, BLOWER1, Klima_LIN1;
+	BLOWER1_U_KNEE: 3, 0, Klima_LIN1, BLOWER1;
+	BLOWER1_UBATT: 8, 0, BLOWER1, Klima_LIN1;
+	BLOWER1_UMOTOR: 8, 0, BLOWER1, Klima_LIN1;
+	DS_BitError: 1, 0, DS, Klima_LIN1;
+	DS_ChecksumError: 1, 0, DS, Klima_LIN1;
+	DS_DruckError: 1, 0, DS, Klima_LIN1;
+	DS_HW: 4, 0, DS, Klima_LIN1;
+	DS_Kaeltemittel_P: 11, 2046, DS, Klima_LIN1;
+	DS_SW: 4, 0, DS, Klima_LIN1;
+	DS_TempError: 1, 0, DS, Klima_LIN1;
+	DTS1_Fehler: 1, 0, pT_Sensor1, Klima_LIN1;
+	DTS1_interne_Sensor_T: 12, 4094, pT_Sensor1, Klima_LIN1;
+	DTS1_Kaeltemittel_p: 12, 4094, pT_Sensor1, Klima_LIN1;
+	DTS1_Kaeltemittel_T: 12, 4094, pT_Sensor1, Klima_LIN1;
+	DTS1_Kommunikation: 1, 0, pT_Sensor1, Klima_LIN1;
+	DTS1_ResponseError: 1, 0, pT_Sensor1, Klima_LIN1;
+	DTS1_TNCTOC: 1, 1, pT_Sensor1, Klima_LIN1;
+	EKK3_COMP_SPEED: 8, 254, EKK3, Klima_LIN1;
+	EKK3_COMP_ST: 3, 7, EKK3, Klima_LIN1;
+	EKK3_ErrMem_STATE: 2, 0, EKK3, Klima_LIN1;
+	EKK3_HIGH_VOLTAGE: 8, 254, EKK3, Klima_LIN1;
+	EKK3_INPUT_CURRENT: 8, 254, EKK3, Klima_LIN1;
+	EKK3_INV_TEMP: 8, 254, EKK3, Klima_LIN1;
+	EKK3_ParameterChange: 1, 0, EKK3, Klima_LIN1;
+	EKK3_ResponseError: 1, 0, EKK3, Klima_LIN1;
+	EKK3_STATE_CURR_SEN_CIRCUIT: 3, 7, EKK3, Klima_LIN1;
+	EKK3_STATE_HV: 3, 7, EKK3, Klima_LIN1;
+	EKK3_STATE_HV_Ref: 3, 7, EKK3, Klima_LIN1;
+	EKK3_STATE_INTERNAL: 3, 7, EKK3, Klima_LIN1;
+	EKK3_STATE_INV_ABN: 1, 0, EKK3, Klima_LIN1;
+	EKK3_STATE_INV_ABN_TNCTOC: 1, 1, EKK3, Klima_LIN1;
+	EKK3_STATE_INV_TEMP: 3, 7, EKK3, Klima_LIN1;
+	EKK3_STATE_LV: 2, 3, EKK3, Klima_LIN1;
+	EKK3_STATE_RPM_SENS_1: 3, 7, EKK3, Klima_LIN1;
+	EKK3_STATE_RPM_SENS_2: 3, 7, EKK3, Klima_LIN1;
+	EKK4_Comp_Error_Mask_Nr: 8, 0, EKK4, Klima_LIN1;
+	EKK4_COMP_SPEED: 10, 0, EKK4, Klima_LIN1;
+	EKK4_COMP_ST: 3, 7, EKK4, Klima_LIN1;
+	EKK4_Err_Ind_Nr_1_8_15_22: 2, 0, EKK4, Klima_LIN1;
+	EKK4_Err_Ind_Nr_2_9_16_23: 2, 0, EKK4, Klima_LIN1;
+	EKK4_Err_Ind_Nr_3_10_17_24: 2, 0, EKK4, Klima_LIN1;
+	EKK4_Err_Ind_Nr_4_11_18_25: 2, 0, EKK4, Klima_LIN1;
+	EKK4_Err_Ind_Nr_5_12_19_26: 2, 0, EKK4, Klima_LIN1;
+	EKK4_Err_Ind_Nr_6_13_20_27: 2, 0, EKK4, Klima_LIN1;
+	EKK4_Err_Ind_Nr_7_14_21_28: 2, 0, EKK4, Klima_LIN1;
+	EKK4_Err_Ind_TF_1_7: 5, 0, EKK4, Klima_LIN1;
+	EKK4_Err_Ind_TF_2_8: 5, 0, EKK4, Klima_LIN1;
+	EKK4_Err_Ind_TF_3_9: 5, 0, EKK4, Klima_LIN1;
+	EKK4_Err_Ind_TF_4_10: 5, 0, EKK4, Klima_LIN1;
+	EKK4_Err_Ind_TF_5_11: 5, 0, EKK4, Klima_LIN1;
+	EKK4_Err_Ind_TF_6_12: 5, 0, EKK4, Klima_LIN1;
+	EKK4_ErrMem_State: 2, 2, EKK4, Klima_LIN1;
+	EKK4_HIGH_VOLTAGE: 9, 510, EKK4, Klima_LIN1;
+	EKK4_INPUT_CURRENT: 8, 254, EKK4, Klima_LIN1;
+	EKK4_INV_TEMP: 8, 254, EKK4, Klima_LIN1;
+	EKK4_Level_Rsp: 1, 0, EKK4, Klima_LIN1;
+	EKK4_Match: 2, 3, EKK4, Klima_LIN1;
+	EKK4_MUX_Err_Ind: 2, 0, EKK4, Klima_LIN1;
+	EKK4_Number_of_Err_Ind_TF: 4, 0, EKK4, Klima_LIN1;
+	EKK4_ParameterChange: 1, 0, EKK4, Klima_LIN1;
+	EKK4_Reason_Err_Ind_TF_1_7: 3, 0, EKK4, Klima_LIN1;
+	EKK4_Reason_Err_Ind_TF_2_8: 3, 0, EKK4, Klima_LIN1;
+	EKK4_Reason_Err_Ind_TF_3_9: 3, 0, EKK4, Klima_LIN1;
+	EKK4_Reason_Err_Ind_TF_4_10: 3, 0, EKK4, Klima_LIN1;
+	EKK4_Reason_Err_Ind_TF_5_11: 3, 0, EKK4, Klima_LIN1;
+	EKK4_Reason_Err_Ind_TF_6_12: 3, 0, EKK4, Klima_LIN1;
+	EKK4_ResponseError: 1, 0, EKK4, Klima_LIN1;
+	EKK4_TF_Change: 1, 0, EKK4, Klima_LIN1;
+	EKK_COMP_SPEED: 8, 0, EKK, Klima_LIN1;
+	EKK_COMP_ST: 3, 0, EKK, Klima_LIN1;
+	EKK_ENB_COMP: 2, 0, Klima_LIN1, EKK, EKK3, EKK4;
+	EKK_GW_COMM_ERR: 1, 0, EKK, Klima_LIN1;
+	EKK_HIGH_VOLTAGE: 8, 0, EKK, Klima_LIN1;
+	EKK_HV_ERR: 2, 0, EKK, Klima_LIN1;
+	EKK_HV_ST: 2, 0, Klima_LIN1, EKK, EKK3, EKK4;
+	EKK_INPUT_CURRENT: 8, 0, EKK, Klima_LIN1;
+	EKK_INV_ABN: 1, 0, EKK, Klima_LIN1;
+	EKK_INV_COMM_ERR: 1, 0, EKK, Klima_LIN1;
+	EKK_INV_HI_TEMP: 2, 0, EKK, Klima_LIN1;
+	EKK_INV_LO_TEMP: 1, 0, EKK, Klima_LIN1;
+	EKK_INV_OL: 1, 0, EKK, Klima_LIN1;
+	EKK_INV_SPD_ABN: 1, 0, EKK, Klima_LIN1;
+	EKK_INV_TEMP: 8, 0, EKK, Klima_LIN1;
+	EKK_KL_15_Status: 2, 0, Klima_LIN1, EKK3, EKK4;
+	EKK_LMT_OP: 1, 0, EKK, Klima_LIN1;
+	EKK_LV_ERR: 2, 0, EKK, Klima_LIN1;
+	EKK_O_LINE_ERR: 2, 0, EKK, Klima_LIN1;
+	EKK_PWR_CONS: 8, 0, EKK, Klima_LIN1;
+	EKK_REQ_COMP_SPEED: 8, 0, Klima_LIN1, EKK, EKK3;
+	EKK_REQ_COMP_SPEED_HiRes: 10, 0, Klima_LIN1, EKK4;
+	EKK_Reserviert1: 1, 0, EKK, Klima_LIN1;
+	EKK_ResponseError: 1, 0, EKK, Klima_LIN1;
+	EKK_ST_Invalid: 1, 0, EKK, Klima_LIN1;
+	EKKe_Error_Mask_Nr: 8, 0, Klima_LIN1, EKK4;
+	EKKe_Level_REQ: 1, 0, Klima_LIN1, EKK4;
+	EKKe_Q_Mask: 1, 0, Klima_LIN1, EKK4;
+	Empfindlichkeit_AQS: 3, 0, Klima_LIN1, AQS;
+	ESP_v_Signal_8Bit: 8, 254, Klima_LIN1, AQS;
+	FSA_HW: 4, 0, FSA, Klima_LIN1;
+	FSA_Luftfeuchte_rel: 8, 254, FSA, Klima_LIN1;
+	FSA_ResponseError: 1, 0, FSA, Klima_LIN1;
+	FSA_Sensorheizung_Status: 1, 0, FSA, Klima_LIN1;
+	FSA_SW: 4, 0, FSA, Klima_LIN1;
+	FSA_Taupunkt: 10, 1022, FSA, Klima_LIN1;
+	FSA_Temp_Luft: 10, 1022, FSA, Klima_LIN1;
+	FSA_Temp_Sensor: 11, 2046, FSA, Klima_LIN1;
+	Geblaesestufe: 4, 14, Klima_LIN1, AQS;
+	ISOALLReqB0: 8, 0, Klima_LIN1, EKK3, EKK4;
+	ISOALLReqB1: 8, 0, Klima_LIN1, EKK3, EKK4;
+	ISOALLReqB2: 8, 0, Klima_LIN1, EKK3, EKK4;
+	ISOALLReqB3: 8, 0, Klima_LIN1, EKK3, EKK4;
+	ISOALLReqB4: 8, 0, Klima_LIN1, EKK3, EKK4;
+	ISOALLReqB5: 8, 0, Klima_LIN1, EKK3, EKK4;
+	ISOALLReqB6: 8, 0, Klima_LIN1, EKK3, EKK4;
+	ISOALLReqB7: 8, 0, Klima_LIN1, EKK3, EKK4;
+	KL_HV_PTC_soll: 8, 254, Klima_LIN1, HV_H;
+	KL_PTC_ein: 1, 0, Klima_LIN1, HV_H;
+	KompressorModus: 1, 0, Klima_LIN1, AQS;
+	Navigationsattribute: 4, 14, Klima_LIN1, AQS;
+	PTC_HV_ERR: 2, 3, HV_H, Klima_LIN1;
+	PTC_HV_Err_Heizkreis_1: 1, 0, HV_H, Klima_LIN1;
+	PTC_HV_Err_Heizkreis_2: 1, 0, HV_H, Klima_LIN1;
+	PTC_HV_Err_Heizkreis_3: 1, 0, HV_H, Klima_LIN1;
+	PTC_HV_Err_intern: 1, 0, HV_H, Klima_LIN1;
+	PTC_HV_Err_Leckagestrom: 1, 0, HV_H, Klima_LIN1;
+	PTC_HV_Err_Temperaturschutz: 1, 0, HV_H, Klima_LIN1;
+	PTC_HV_Err_Ueberstromabschaltung: 1, 0, HV_H, Klima_LIN1;
+	PTC_HV_Heizmedium_Sensor_1: 8, 254, HV_H, Klima_LIN1;
+	PTC_HV_Heizmedium_Sensor_2: 8, 254, HV_H, Klima_LIN1;
+	PTC_HV_I_ist: 8, 254, HV_H, Klima_LIN1;
+	PTC_HV_Status_PTC: 3, 7, HV_H, Klima_LIN1;
+	PTC_ResponseError: 1, 0, HV_H, Klima_LIN1;
+	PTC_Status_UBatt: 2, 3, HV_H, Klima_LIN1;
+	PTC_Temp_PCB: 8, 254, HV_H, Klima_LIN1;
+	PTC_TimeOut_Fehler: 1, 0, HV_H, Klima_LIN1;
+	PTC_UBatt: 8, 254, HV_H, Klima_LIN1;
+	Scheibenreinigung: 1, 0, Klima_LIN1, AQS;
+	ST_VLD_BLW_CTRL_1_LIN: 1, 0, BLOWER1, Klima_LIN1;
+	Umluft: 4, 14, Klima_LIN1, AQS;
+}
+Diagnostic_signals {
+		MasterReqB0:8,0;
+		MasterReqB1:8,0;
+		MasterReqB2:8,0;
+		MasterReqB3:8,0;
+		MasterReqB4:8,0;
+		MasterReqB5:8,0;
+		MasterReqB6:8,0;
+		MasterReqB7:8,0;
+		SlaveRespB0:8,0;
+		SlaveRespB1:8,0;
+		SlaveRespB2:8,0;
+		SlaveRespB3:8,0;
+		SlaveRespB4:8,0;
+		SlaveRespB5:8,0;
+		SlaveRespB6:8,0;
+		SlaveRespB7:8,0;
+}
+Frames {
+	AQSe_01: 10, Klima_LIN1, 6 {
+		Aussentemp_ungef, 0;
+		ESP_v_Signal_8Bit, 8;
+		Umluft, 16;
+		Geblaesestufe, 20;
+		Navigationsattribute, 24;
+		Empfindlichkeit_AQS, 28;
+		KompressorModus, 31;
+		Scheibenreinigung, 32;
+		AQS_Sensorheizung, 33;
+}
+	AQSs_01: 16, AQS, 8 {
+		AQS_Luftguete, 0;
+		AQS_ResponseError, 4;
+		AQS_Sensorheizung_Status, 5;
+		AQS_NoxWert, 8;
+		AQS_NoxBereich, 18;
+		AQS_NoxStatus, 20;
+		AQS_COWert, 24;
+		AQS_COBereich, 34;
+		AQS_COStatus, 36;
+		AQS_Parameter, 40;
+		AQS_Traffic, 52;
+		AQS_Toggle, 54;
+		AQS_HW, 56;
+		AQS_SW, 60;
+}
+	BLOWER1_SET: 39, Klima_LIN1, 8 {
+		BLOWER1_RX_FREQUENCY, 0;
+		BLOWER1_SELECT, 16;
+		BLOWER1_IMAX_MAX, 18;
+		BLOWER1_IMAX_MIN, 24;
+		BLOWER1_U_KNEE, 29;
+		BLOWER1_SAFETYRUN_THRESHOLD, 32;
+		BLOWER1_RAMP, 36;
+		BLOWER1_SPEED, 40;
+		BLOWER1_SAFETY_SPEED, 48;
+}
+	BLOWER1_STATUS: 50, BLOWER1, 8 {
+		BLOWER1_STATUS1, 0;
+		BLOWER1_ResponseError, 6;
+		ST_VLD_BLW_CTRL_1_LIN, 7;
+		BLOWER1_STATUS2, 8;
+		BLOWER1_IBATT, 16;
+		BLOWER1_UMOTOR, 24;
+		BLOWER1_TEMPERATURE, 32;
+		BLOWER1_UBATT, 40;
+		BLOWER1_SUPPLIER, 48;
+		BLOWER1_SW, 56;
+		BLOWER1_HW, 60;
+}
+	DSs_01: 36, DS, 4 {
+		DS_Kaeltemittel_P, 0;
+		DS_DruckError, 20;
+		DS_TempError, 21;
+		DS_ChecksumError, 22;
+		DS_BitError, 23;
+		DS_HW, 24;
+		DS_SW, 28;
+}
+	DTSs_01: 34, pT_Sensor1, 5 {
+		DTS1_Kaeltemittel_p, 0;
+		DTS1_Kaeltemittel_T, 12;
+		DTS1_interne_Sensor_T, 24;
+		DTS1_Fehler, 36;
+		DTS1_Kommunikation, 37;
+		DTS1_ResponseError, 38;
+		DTS1_TNCTOC, 39;
+}
+	EKK3s_01: 27, EKK3, 8 {
+		EKK3_STATE_HV, 0;
+		EKK3_STATE_INV_ABN, 3;
+		EKK3_STATE_INTERNAL, 4;
+		EKK3_STATE_INV_ABN_TNCTOC, 7;
+		EKK3_STATE_RPM_SENS_1, 8;
+		EKK3_STATE_RPM_SENS_2, 11;
+		EKK3_ErrMem_STATE, 14;
+		EKK3_ParameterChange, 16;
+		EKK3_ResponseError, 17;
+		EKK3_STATE_CURR_SEN_CIRCUIT, 18;
+		EKK3_COMP_ST, 21;
+		EKK3_STATE_HV_Ref, 24;
+		EKK3_STATE_INV_TEMP, 27;
+		EKK3_STATE_LV, 30;
+		EKK3_COMP_SPEED, 32;
+		EKK3_INPUT_CURRENT, 40;
+		EKK3_INV_TEMP, 48;
+		EKK3_HIGH_VOLTAGE, 56;
+}
+	EKK4s_01: 11, EKK4, 8 {
+		EKK4_MUX_Err_Ind, 0;
+		EKK4_Err_Ind_Nr_1_8_15_22, 2;
+		EKK4_Err_Ind_Nr_2_9_16_23, 4;
+		EKK4_Err_Ind_Nr_3_10_17_24, 6;
+		EKK4_Err_Ind_Nr_4_11_18_25, 8;
+		EKK4_Err_Ind_Nr_5_12_19_26, 10;
+		EKK4_Err_Ind_Nr_6_13_20_27, 12;
+		EKK4_Err_Ind_Nr_7_14_21_28, 14;
+		EKK4_INV_TEMP, 16;
+		EKK4_INPUT_CURRENT, 24;
+		EKK4_HIGH_VOLTAGE, 32;
+		EKK4_Match, 44;
+		EKK4_TF_Change, 46;
+		EKK4_ResponseError, 47;
+		EKK4_COMP_SPEED, 48;
+		EKK4_ErrMem_State, 58;
+		EKK4_ParameterChange, 60;
+		EKK4_COMP_ST, 61;
+}
+	EKK4s_02: 53, EKK4, 8 {
+		EKK4_Level_Rsp, 0;
+		EKK4_Number_of_Err_Ind_TF, 4;
+		EKK4_Reason_Err_Ind_TF_1_7, 8;
+		EKK4_Err_Ind_TF_1_7, 11;
+		EKK4_Reason_Err_Ind_TF_2_8, 16;
+		EKK4_Err_Ind_TF_2_8, 19;
+		EKK4_Reason_Err_Ind_TF_3_9, 24;
+		EKK4_Err_Ind_TF_3_9, 27;
+		EKK4_Reason_Err_Ind_TF_4_10, 32;
+		EKK4_Err_Ind_TF_4_10, 35;
+		EKK4_Reason_Err_Ind_TF_5_11, 40;
+		EKK4_Err_Ind_TF_5_11, 43;
+		EKK4_Reason_Err_Ind_TF_6_12, 48;
+		EKK4_Err_Ind_TF_6_12, 51;
+		EKK4_Comp_Error_Mask_Nr, 56;
+}
+	EKKe_01: 32, Klima_LIN1, 6 {
+		EKK_REQ_COMP_SPEED, 0;
+		EKK_ENB_COMP, 8;
+		EKK_HV_ST, 10;
+		EKK_KL_15_Status, 12;
+		EKKe_Q_Mask, 14;
+		EKKe_Level_REQ, 15;
+		EKKe_Error_Mask_Nr, 16;
+		EKK_REQ_COMP_SPEED_HiRes, 24;
+}
+	EKKs_01: 33, EKK, 8 {
+		EKK_HV_ERR, 0;
+		EKK_O_LINE_ERR, 2;
+		EKK_INV_OL, 4;
+		EKK_INV_ABN, 5;
+		EKK_LMT_OP, 6;
+		EKK_INV_COMM_ERR, 7;
+		EKK_INV_HI_TEMP, 8;
+		EKK_INV_LO_TEMP, 10;
+		EKK_INV_SPD_ABN, 11;
+		EKK_ST_Invalid, 15;
+		EKK_GW_COMM_ERR, 16;
+		EKK_LV_ERR, 17;
+		EKK_Reserviert1, 19;
+		EKK_ResponseError, 20;
+		EKK_COMP_ST, 21;
+		EKK_COMP_SPEED, 24;
+		EKK_INPUT_CURRENT, 32;
+		EKK_PWR_CONS, 40;
+		EKK_INV_TEMP, 48;
+		EKK_HIGH_VOLTAGE, 56;
+}
+	FSAs_01: 40, FSA, 8 {
+		FSA_Taupunkt, 0;
+		FSA_ResponseError, 15;
+		FSA_Temp_Luft, 16;
+		FSA_Luftfeuchte_rel, 32;
+		FSA_HW, 40;
+		FSA_SW, 44;
+		FSA_Temp_Sensor, 48;
+		FSA_Sensorheizung_Status, 59;
+}
+	HV_He_01: 28, Klima_LIN1, 4 {
+		KL_HV_PTC_soll, 0;
+		KL_PTC_ein, 8;
+}
+	HV_Hs_01: 48, HV_H, 8 {
+		PTC_HV_I_ist, 0;
+		PTC_HV_ERR, 8;
+		PTC_HV_Status_PTC, 16;
+		PTC_Status_UBatt, 19;
+		PTC_ResponseError, 21;
+		PTC_TimeOut_Fehler, 22;
+		PTC_HV_Err_Heizkreis_1, 24;
+		PTC_HV_Err_Heizkreis_2, 25;
+		PTC_HV_Err_Heizkreis_3, 26;
+		PTC_HV_Err_Leckagestrom, 27;
+		PTC_HV_Err_Ueberstromabschaltung, 28;
+		PTC_HV_Err_Temperaturschutz, 29;
+		PTC_HV_Err_intern, 30;
+		PTC_UBatt, 32;
+		PTC_Temp_PCB, 40;
+		PTC_HV_Heizmedium_Sensor_1, 48;
+		PTC_HV_Heizmedium_Sensor_2, 56;
+}
+	ISO_Funktionaler_Req_All: 44, Klima_LIN1, 8 {
+		ISOALLReqB0, 0;
+		ISOALLReqB1, 8;
+		ISOALLReqB2, 16;
+		ISOALLReqB3, 24;
+		ISOALLReqB4, 32;
+		ISOALLReqB5, 40;
+		ISOALLReqB6, 48;
+		ISOALLReqB7, 56;
+}
+}
+Diagnostic_frames {
+	MasterReq: 60 {
+		MasterReqB0, 0;
+		MasterReqB1, 8;
+		MasterReqB2, 16;
+		MasterReqB3, 24;
+		MasterReqB4, 32;
+		MasterReqB5, 40;
+		MasterReqB6, 48;
+		MasterReqB7, 56;
+	}
+	SlaveResp: 61	{
+		SlaveRespB0, 0;
+		SlaveRespB1, 8;
+		SlaveRespB2, 16;
+		SlaveRespB3, 24;
+		SlaveRespB4, 32;
+		SlaveRespB5, 40;
+		SlaveRespB6, 48;
+		SlaveRespB7, 56;
+	}
+}
+Node_attributes {
+	AQS {
+		LIN_protocol = 2.0;
+		configured_NAD=0x1A;
+		product_id=0x0000, 0x0000, 0x00;
+		response_error =AQS_ResponseError;
+		P2_min = 10 ms;
+		ST_min = 10 ms;
+		configurable_frames {
+			AQSe_01 = 0x1000;
+			AQSs_01 = 0x1001;
+		}
+	}
+	BLOWER1 {
+		LIN_protocol = 2.0;
+		configured_NAD=0x60;
+		product_id=0x0000, 0x0000, 0x00;
+		response_error =BLOWER1_ResponseError;
+		P2_min = 10 ms;
+		ST_min = 10 ms;
+		configurable_frames {
+			BLOWER1_SET = 0x1002;
+			BLOWER1_STATUS = 0x1003;
+		}
+	}
+	DS {
+		LIN_protocol = 1.3;
+		configured_NAD=0x19;
+	}
+	EKK {
+		LIN_protocol = 2.0;
+		configured_NAD=0x24;
+		product_id=0x0000, 0x0000, 0x00;
+		response_error =EKK_ResponseError;
+		P2_min = 10 ms;
+		ST_min = 10 ms;
+		configurable_frames {
+			EKKe_01 = 0x404C;
+			EKKs_01 = 0x4040;
+		}
+	}
+	EKK3 {
+		LIN_protocol = 2.0;
+		configured_NAD=0x2A;
+		product_id=0x0000, 0x0000, 0x00;
+		response_error =EKK3_ResponseError;
+		P2_min = 10 ms;
+		ST_min = 10 ms;
+		configurable_frames {
+			EKK3s_01 = 0x4042;
+			EKKe_01 = 0x404C;
+			ISO_Funktionaler_Req_All = 0x4043;
+		}
+	}
+	EKK4 {
+		LIN_protocol = 2.0;
+		configured_NAD=0x39;
+		product_id=0x0000, 0x0000, 0x00;
+		response_error =EKK4_ResponseError;
+		P2_min = 10 ms;
+		ST_min = 10 ms;
+		configurable_frames {
+			EKK4s_01 = 0x400B;
+			EKK4s_02 = 0x4035;
+			EKKe_01 = 0x404C;
+			ISO_Funktionaler_Req_All = 0x4043;
+		}
+	}
+	FSA {
+		LIN_protocol = 2.0;
+		configured_NAD=0x50;
+		product_id=0x0000, 0x0000, 0x00;
+		response_error =FSA_ResponseError;
+		P2_min = 10 ms;
+		ST_min = 10 ms;
+		configurable_frames {
+			FSAs_01 = 0x1040;
+		}
+	}
+	HV_H {
+		LIN_protocol = 2.0;
+		configured_NAD=0x5F;
+		product_id=0x0000, 0x0000, 0x00;
+		response_error =PTC_ResponseError;
+		P2_min = 10 ms;
+		ST_min = 10 ms;
+		configurable_frames {
+			HV_He_01 = 0x401C;
+			HV_Hs_01 = 0x4030;
+		}
+	}
+	pT_Sensor1 {
+		LIN_protocol = 2.0;
+		configured_NAD=0x14;
+		product_id=0x0000, 0x0000, 0x00;
+		response_error =DTS1_ResponseError;
+		P2_min = 10 ms;
+		ST_min = 10 ms;
+		configurable_frames {
+			DTSs_01 = 0x1022;
+		}
+	}
+}
+Schedule_tables {
+	st_main {
+		AQSe_01 delay 10 ms;
+		HV_He_01 delay 10 ms;
+		DSs_01 delay 10 ms;
+		EKKe_01 delay 20 ms;
+		FSAs_01 delay 10 ms;
+		BLOWER1_SET delay 10 ms;
+		DSs_01 delay 10 ms;
+		EKKs_01 delay 20 ms;
+		AQSs_01 delay 10 ms;
+		HV_Hs_01 delay 10 ms;
+		DSs_01 delay 10 ms;
+		EKKe_01 delay 20 ms;
+		FSAs_01 delay 10 ms;
+		BLOWER1_STATUS delay 10 ms;
+		DSs_01 delay 10 ms;
+		EKKs_01 delay 20 ms;
+	}
+	st_main_nar {
+		AQSe_01 delay 10 ms;
+		HV_He_01 delay 10 ms;
+		DTSs_01 delay 10 ms;
+		EKKe_01 delay 20 ms;
+		FSAs_01 delay 10 ms;
+		BLOWER1_SET delay 10 ms;
+		DTSs_01 delay 10 ms;
+		EKK3s_01 delay 20 ms;
+		AQSs_01 delay 10 ms;
+		HV_Hs_01 delay 10 ms;
+		DTSs_01 delay 10 ms;
+		EKKe_01 delay 20 ms;
+		FSAs_01 delay 10 ms;
+		BLOWER1_STATUS delay 10 ms;
+		DTSs_01 delay 10 ms;
+		EKK3s_01 delay 20 ms;
+	}
+	st_main_rdw_nar {
+		AQSe_01 delay 10 ms;
+		HV_He_01 delay 10 ms;
+		DTSs_01 delay 10 ms;
+		EKKe_01 delay 20 ms;
+		FSAs_01 delay 10 ms;
+		BLOWER1_SET delay 10 ms;
+		DTSs_01 delay 10 ms;
+		EKKs_01 delay 20 ms;
+		AQSs_01 delay 10 ms;
+		HV_Hs_01 delay 10 ms;
+		DTSs_01 delay 10 ms;
+		EKKe_01 delay 20 ms;
+		FSAs_01 delay 10 ms;
+		BLOWER1_STATUS delay 10 ms;
+		DTSs_01 delay 10 ms;
+		EKKs_01 delay 20 ms;
+	}
+	st_main_OBD {
+		AQSe_01 delay 10 ms;
+		HV_He_01 delay 10 ms;
+		DTSs_01 delay 10 ms;
+		EKKe_01 delay 20 ms;
+		FSAs_01 delay 10 ms;
+		BLOWER1_SET delay 10 ms;
+		DTSs_01 delay 10 ms;
+		EKK4s_01 delay 20 ms;
+		AQSs_01 delay 10 ms;
+		HV_Hs_01 delay 10 ms;
+		DTSs_01 delay 10 ms;
+		EKKe_01 delay 20 ms;
+		FSAs_01 delay 10 ms;
+		BLOWER1_STATUS delay 10 ms;
+		DTSs_01 delay 10 ms;
+		EKK4s_01 delay 20 ms;
+	}
+	st_main2 {
+		AQSe_01 delay 10 ms;
+		HV_He_01 delay 10 ms;
+		DSs_01 delay 10 ms;
+		EKKe_01 delay 20 ms;
+		FSAs_01 delay 10 ms;
+		BLOWER1_SET delay 10 ms;
+		DSs_01 delay 10 ms;
+		EKK4s_01 delay 20 ms;
+		AQSs_01 delay 10 ms;
+		HV_Hs_01 delay 10 ms;
+		DSs_01 delay 10 ms;
+		EKKe_01 delay 20 ms;
+		FSAs_01 delay 10 ms;
+		BLOWER1_STATUS delay 10 ms;
+		DSs_01 delay 10 ms;
+		EKK4s_01 delay 20 ms;
+	}
+	st_EKK_Fehler {
+		EKK4s_02 delay 10 ms;
+	}
+	DiagRequest {
+		MasterReq delay 10 ms;
+	}
+	DiagResponse {
+		SlaveResp delay 10 ms;
+	}
+	DiagFunktionalerRequest {
+		ISO_Funktionaler_Req_All delay 10 ms;
+	}
+}
+Signal_encoding_types {
+	AQS_COBereich_encoding {
+		logical_value, 0, "Messbereich 0";
+		logical_value, 1, "Messbereich 1";
+		logical_value, 2, "Messbereich 2";
+		logical_value, 3, "Messbereich 3";
+	}
+	AQS_COStatus_encoding {
+		logical_value, 0, "nicht geschaltet";
+		logical_value, 1, "Luftgütestufe 1";
+		logical_value, 2, "Luftgütestufe 2";
+		logical_value, 3, "Luftgütestufe 3";
+		logical_value, 4, "Luftgütestufe 4";
+		logical_value, 5, "Luftgütestufe 5";
+		logical_value, 6, "Luftgütestufe 6";
+		logical_value, 7, "Luftgütestufe 7";
+		logical_value, 8, "Luftgütestufe 8";
+		logical_value, 9, "Luftgütestufe 9";
+		logical_value, 10, "Luftgütestufe 10";
+		logical_value, 15, "Fehler";
+	}
+	AQS_COWert_encoding {
+		physical_value, 0, 1023, 1, 0, "";
+	}
+	AQS_HW_encoding {
+		physical_value, 0, 15, 1, 0, "";
+	}
+	AQS_Luftguete_encoding {
+		logical_value, 0, "saubere Luft";
+		logical_value, 1, "Luftguetestufe 10%";
+		logical_value, 2, "Luftguetestufe 20%";
+		logical_value, 3, "Luftguetestufe 30%";
+		logical_value, 4, "Luftguetestufe 40%";
+		logical_value, 5, "Luftguetestufe 50%";
+		logical_value, 6, "Luftguetestufe 60%";
+		logical_value, 7, "Luftguetestufe 70%";
+		logical_value, 8, "Luftguetestufe 80%";
+		logical_value, 9, "Luftguetestufe 90%";
+		logical_value, 10, "stark verschmutze Luft";
+		logical_value, 13, "nicht_verbaut";
+		logical_value, 14, "Init";
+		logical_value, 15, "Fehler";
+	}
+	AQS_NoxBereich_encoding {
+		logical_value, 0, "Messbereich 0";
+		logical_value, 1, "Messbereich 1";
+		logical_value, 2, "Messbereich 2";
+		logical_value, 3, "Messbereich 3";
+	}
+	AQS_NoxStatus_encoding {
+		logical_value, 0, "nicht geschaltet";
+		logical_value, 1, "Luftguetestufe 1";
+		logical_value, 2, "Luftguetestufe 2";
+		logical_value, 3, "Luftguetestufe 3";
+		logical_value, 4, "Luftguetestufe 4";
+		logical_value, 5, "Luftguetestufe 5";
+		logical_value, 6, "Luftguetestufe 6";
+		logical_value, 7, "Luftguetestufe 7";
+		logical_value, 8, "Luftguetestufe 8";
+		logical_value, 9, "Luftguetestufe 9";
+		logical_value, 10, "Luftguetestufe 10";
+		logical_value, 15, "Luftguetestufe ERROR";
+	}
+	AQS_NoxWert_encoding {
+		physical_value, 0, 1023, 1, 0, "";
+	}
+	AQS_Parameter_encoding {
+		physical_value, 0, 4095, 1, 0, "";
+	}
+	AQS_SW_encoding {
+		physical_value, 0, 15, 1, 0, "";
+	}
+	AQS_Traffic_encoding {
+		logical_value, 0, "unbekannt";
+		logical_value, 1, "City Mode";
+		logical_value, 2, "Country Mode";
+		logical_value, 3, "Highway Mode";
+	}
+	Aussentemp_ungef_encoding {
+		logical_value, 253, "nicht verbaut";
+		logical_value, 254, "Init";
+		logical_value, 255, "Fehler";
+		physical_value, 0, 252, 0.5, -50, "Unit_DegreCelsi";
+	}
+	BLOWER1_HW_encoding {
+		physical_value, 0, 15, 1, 0, "Unit_None";
+	}
+	BLOWER1_IBATT_encoding {
+		logical_value, 254, "kein Messwert verfügbar";
+		logical_value, 255, " Fehler Strommesseinrichtung";
+		physical_value, 0, 253, 0.25, 0, "Unit_Amper";
+	}
+	BLOWER1_IMAX_MAX_encoding {
+		logical_value, 63, "ungueltig";
+		physical_value, 0, 62, 0.5, 8, "Unit_Amper";
+	}
+	BLOWER1_IMAX_MIN_encoding {
+		logical_value, 31, "ungueltig";
+		physical_value, 0, 30, 0.5, 2, "Unit_Amper";
+	}
+	BLOWER1_RAMP_encoding {
+		logical_value, 0, "< 0,12 V / s (Testrampe)";
+		logical_value, 15, "ungueltig";
+		physical_value, 1, 14, 0.5, 0, "Unit_VoltPerSecon";
+	}
+	BLOWER1_RX_FREQUENCY_encoding {
+		logical_value, 4095, "ungueltig";
+		physical_value, 0, 1896, 1, 150, "Unit_KiloHertz";
+	}
+	BLOWER1_SAFETY_SPEED_encoding {
+		logical_value, 251, "reserviert";
+		logical_value, 252, "reserviert";
+		logical_value, 253, " 0 V, Notlauf disabled sofort Abschalten";
+		logical_value, 254, " 0 V, Notlauf disabled ";
+		logical_value, 255, "ungueltig";
+		physical_value, 0, 250, 0.05, 1.5, "Unit_Volt";
+	}
+	BLOWER1_SAFETYRUN_THRESHOLD_encoding {
+		logical_value, 15, "ungueltig";
+		physical_value, 0, 14, 0.1, 11.5, "Unit_Volt";
+	}
+	BLOWER1_SELECT_encoding {
+		logical_value, 0, "BLOWER1";
+		logical_value, 1, "BLOWER3";
+		logical_value, 2, "reserviert";
+		logical_value, 3, "ungueltig";
+	}
+	BLOWER1_SPEED_encoding {
+		logical_value, 0, "0V Motorspannung";
+		logical_value, 252, "0 V sofort Abschalten";
+		logical_value, 253, "0 V senken mit Rampe";
+		logical_value, 254, "reserviert";
+		logical_value, 255, "ungueltig";
+		physical_value, 1, 251, 0.05, 1.45, "Unit_Volt";
+	}
+	BLOWER1_STATUS1_encoding {
+		logical_value, 0, "Init";
+		logical_value, 1, "interner Fehler detektiert, Notabschaltung";
+		logical_value, 2, "Kurzschluss oder blockiert, Motor aus";
+		logical_value, 4, "Übertemperaturbegrenzung aktiv";
+		logical_value, 8, "Unterbrechung zum Motor detektiert";
+		logical_value, 16, "Überspannung Abschaltung";
+		logical_value, 32, "Unterspannung Abschaltung";
+	}
+	BLOWER1_STATUS2_encoding {
+		logical_value, 0, "Init";
+		logical_value, 1, "Strombegrenzung aktiv";
+		logical_value, 2, "Sollwert erreicht";
+		logical_value, 4, "Notlauf aktiviert";
+		logical_value, 8, "Blower Status 2 ungültig, ignorieren";
+	}
+	BLOWER1_SUPPLIER_encoding {
+		logical_value, 64, "BOSCH";
+		logical_value, 102, "VALEO";
+		physical_value, 0, 48, 1, 0, "Unit_None";
+	}
+	BLOWER1_SW_encoding {
+		physical_value, 0, 15, 1, 0, "Unit_None";
+	}
+	BLOWER1_TEMPERATURE_encoding {
+		logical_value, 254, "kein Messwert verfügbar";
+		logical_value, 255, "Fehler Temperaturmesseinrichtung";
+		physical_value, 0, 190, 1, -40, "Unit_DegreCelsi";
+		physical_value, 191, 253, 0, 150, "Unit_DegreCelsi";
+	}
+	BLOWER1_U_KNEE_encoding {
+		logical_value, 7, "ungueltig";
+		physical_value, 0, 6, 0.5, 8.5, "Unit_Volt";
+	}
+	BLOWER1_UBATT_encoding {
+		logical_value, 254, "kein_Messwert_verfuegbar";
+		logical_value, 255, "Fehler_Spannungsmesseinrichtung";
+		physical_value, 0, 253, 0.1, 0, "Unit_Volt";
+	}
+	BLOWER1_UMOTOR_encoding {
+		logical_value, 254, "kein_Messwert_verfuegbar";
+		logical_value, 255, "Fehler_Spannungsmesseinrichtung";
+		physical_value, 0, 253, 0.1, 0, "Unit_Volt";
+	}
+	DS_HW_encoding {
+		physical_value, 0, 15, 1, 0, "";
+	}
+	DS_Kaeltemittel_P_encoding {
+		logical_value, 2046, "Init";
+		logical_value, 2047, "Fehler";
+		physical_value, 0, 2045, 0.0161, 0, "Unit_Bar";
+	}
+	DS_SW_encoding {
+		physical_value, 0, 15, 1, 0, "";
+	}
+	DTS1_interne_Sensor_T_encoding {
+		logical_value, 4094, "Init";
+		logical_value, 4095, "Fehler";
+		physical_value, 0, 1800, 0.1, -40, "Unit_DegreCelsi";
+	}
+	DTS1_Kaeltemittel_p_encoding {
+		logical_value, 4094, "Init";
+		logical_value, 4095, "Fehler";
+		physical_value, 0, 4093, 0.0088, 0, "Unit_Bar";
+	}
+	DTS1_Kaeltemittel_T_encoding {
+		logical_value, 4094, "Init";
+		logical_value, 4095, "Fehler";
+		physical_value, 0, 1900, 0.1, -40, "Unit_DegreCelsi";
+	}
+	DTS1_TNCTOC_encoding {
+		logical_value, 0, "DTC_test_completed_this_operation_cylce";
+		logical_value, 1, "DTC_test_not_completed_this_operation_cylce";
+	}
+	EKK3_COMP_SPEED_encoding {
+		logical_value, 254, "Init";
+		logical_value, 255, "Fehler";
+		physical_value, 0, 253, 50, 0, "Unit_MinutInver";
+	}
+	EKK3_COMP_ST_encoding {
+		logical_value, 0, "Comp_Stop";
+		logical_value, 1, "Comp_ON";
+		logical_value, 2, "Comp_Speed_Limited_Operation";
+		logical_value, 3, "Comp_Stop_For_Protection_TF";
+		logical_value, 4, "Comp_Stop_For_Self_Protection";
+		logical_value, 5, "Comp_Stop_For_INV_Heating";
+		logical_value, 6, "NC";
+		logical_value, 7, "Init";
+	}
+	EKK3_ErrMem_STATE_encoding {
+		logical_value, 0, "Init_Default";
+		logical_value, 1, "ErrMem_Active_State";
+		logical_value, 2, "ErrMem_InitProgress";
+		logical_value, 3, "ErrMem_Init_done";
+	}
+	EKK3_HIGH_VOLTAGE_encoding {
+		logical_value, 254, "Init";
+		logical_value, 255, "Fehler";
+		physical_value, 0, 253, 2, 0, "Unit_Volt";
+	}
+	EKK3_INPUT_CURRENT_encoding {
+		logical_value, 254, "Init";
+		logical_value, 255, "Fehler";
+		physical_value, 0, 253, 0.25, 0, "Unit_Amper";
+	}
+	EKK3_INV_TEMP_encoding {
+		logical_value, 254, "Init";
+		logical_value, 255, "Fehler";
+		physical_value, 0, 253, 1, -126, "Unit_DegreCelsi";
+	}
+	EKK3_ParameterChange_encoding {
+		logical_value, 0, "no_parameter_change";
+		logical_value, 1, "parameter_change";
+	}
+	EKK3_ResponseError_encoding {
+		logical_value, 0, "No_error";
+		logical_value, 1, "Response_error";
+	}
+	EKK3_STATE_CURR_SEN_CIRCUIT_encoding {
+		logical_value, 0, "Current_Sens_Circuit_TP_TC";
+		logical_value, 1, "Sensor_short_high_or_open_TC";
+		logical_value, 2, "Sensor_short_low_or_open_TC";
+		logical_value, 3, "Sensor_out_of_range_high_TC";
+		logical_value, 4, "Sensor_plausibility_check_TC";
+		logical_value, 5, "NC";
+		logical_value, 6, "NC";
+		logical_value, 7, "Current_Sens_Circuit_TNCTOC";
+	}
+	EKK3_STATE_HV_encoding {
+		logical_value, 0, "High_Voltage_TP_TC";
+		logical_value, 1, "Sensor_short_high_or_open_TC";
+		logical_value, 2, "Sensor_short_low_or_open_TC";
+		logical_value, 3, "Sensor_out_of_range_high_TC";
+		logical_value, 4, "Sensor_plausibility_check_TC";
+		logical_value, 5, "High_Voltage_too_low";
+		logical_value, 6, "High_Voltage_too_high";
+		logical_value, 7, "High_Voltage_TNCTOC";
+	}
+	EKK3_STATE_HV_Ref_encoding {
+		logical_value, 0, "High_Voltage_Ref_TP_TC";
+		logical_value, 1, "Sensor_short_high_or_open_TC";
+		logical_value, 2, "Sensor_short_low_or_open_TC";
+		logical_value, 3, "Sensor_out_of_range_high_TC";
+		logical_value, 4, "NC";
+		logical_value, 5, "NC";
+		logical_value, 6, "NC";
+		logical_value, 7, "High_Voltage_Ref_TNCTOC";
+	}
+	EKK3_STATE_INTERNAL_encoding {
+		logical_value, 0, "State_Internal_TP_TC";
+		logical_value, 1, "ERR_RAM_ROM_Check_TC";
+		logical_value, 2, "ERR_EEProm_Check_TC";
+		logical_value, 3, "ERR_AD_Wandler_TC";
+		logical_value, 4, "ERR_Watchdog_TC";
+		logical_value, 5, "ERR_CPU_Board_TC";
+		logical_value, 6, "NC";
+		logical_value, 7, "State_Internal_TNCTOC";
+	}
+	EKK3_STATE_INV_ABN_encoding {
+		logical_value, 0, "No_Error";
+		logical_value, 1, "EKK_Stucked";
+	}
+	EKK3_STATE_INV_ABN_TNCTOC_encoding {
+		logical_value, 0, "Test_completed_this_cycle";
+		logical_value, 1, "Test_not_completed_this_cycle";
+	}
+	EKK3_STATE_INV_TEMP_encoding {
+		logical_value, 0, "Inv_Temp_TP_TC";
+		logical_value, 1, "Sensor_short_high_or_open_TC";
+		logical_value, 2, "Sensor_short_low_or_open_TC";
+		logical_value, 3, "Sensor_out_of_range_TC";
+		logical_value, 4, "NC";
+		logical_value, 5, "Inv_Temp_too_low_stop";
+		logical_value, 6, "Inv_Temp_too_high_stop";
+		logical_value, 7, "Inv_Temp_TNCTOC";
+	}
+	EKK3_STATE_LV_encoding {
+		logical_value, 0, "LV_Voltage_TP_TC";
+		logical_value, 1, "LV_Voltage_too_low_TC";
+		logical_value, 2, "LV_Voltage_too_high_TC";
+		logical_value, 3, "Init_LV_Sensor_not_available";
+	}
+	EKK3_STATE_RPM_SENS_1_encoding {
+		logical_value, 0, "RPM_Sens_1_TP_TC";
+		logical_value, 1, "Sensor_short_high_or_open_TC";
+		logical_value, 2, "Sensor_short_low_or_open_TC";
+		logical_value, 3, "Sensor_out_of_range_high_TC";
+		logical_value, 4, "Sensor_plausibility_check_TC";
+		logical_value, 5, "Sensor_out_of_range_low_TC";
+		logical_value, 6, "NC";
+		logical_value, 7, "RPM_Sens_1_TNCTOC";
+	}
+	EKK3_STATE_RPM_SENS_2_encoding {
+		logical_value, 0, "RPM_Sens_2_TP_TC";
+		logical_value, 1, "Sensor_short_high_or_open_TC";
+		logical_value, 2, "Sensor_short_low_or_open_TC";
+		logical_value, 3, "Sensor_out_of_range_high_TC";
+		logical_value, 4, "Sensor_plausibility_check_TC";
+		logical_value, 5, "Sensor_out_of_range_low_TC";
+		logical_value, 6, "RPM_Sens_2_not_avaible";
+		logical_value, 7, "RPM_Sens_2_TNCTOC";
+	}
+	EKK4_Comp_Error_Mask_Nr_encoding {
+		logical_value, 0, "reserved";
+		logical_value, 255, "reserved";
+		physical_value, 1, 254, 1, 0, "";
+	}
+	EKK4_COMP_SPEED_encoding {
+		logical_value, 1023, "Fehler";
+		physical_value, 0, 1022, 15, 0, "Unit_MinutInver";
+	}
+	EKK4_COMP_ST_encoding {
+		logical_value, 0, "Comp_Stop";
+		logical_value, 1, "Comp_ON";
+		logical_value, 2, "Comp_Speed_Limited_Operation";
+		logical_value, 3, "Comp_Stop_For_Protection_TF";
+		logical_value, 4, "Comp_Stop_For_Self_Protection";
+		logical_value, 5, "Comp_Stop_For_INV_Heating";
+		logical_value, 6, "NC";
+		logical_value, 7, "Init";
+	}
+	EKK4_Err_Ind_TF_1_7_encoding {
+		logical_value, 0, "keine_Fehlerindikation";
+		logical_value, 29, "reserved";
+		logical_value, 30, "reserved";
+		logical_value, 31, "reserved";
+		physical_value, 1, 28, 1, 0, "";
+	}
+	EKK4_Err_Ind_TF_2_8_encoding {
+		logical_value, 0, "keine_Fehlerindikation";
+		logical_value, 29, "reserved";
+		logical_value, 30, "reserved";
+		logical_value, 31, "reserved";
+		physical_value, 1, 28, 1, 0, "";
+	}
+	EKK4_Err_Ind_TF_3_9_encoding {
+		logical_value, 0, "keine_Fehlerindikation";
+		logical_value, 29, "reserved";
+		logical_value, 30, "reserved";
+		logical_value, 31, "reserved";
+		physical_value, 1, 28, 1, 0, "";
+	}
+	EKK4_Err_Ind_TF_4_10_encoding {
+		logical_value, 0, "keine_Fehlerindikation";
+		logical_value, 29, "reserved";
+		logical_value, 30, "reserved";
+		logical_value, 31, "reserved";
+		physical_value, 1, 28, 1, 0, "";
+	}
+	EKK4_Err_Ind_TF_5_11_encoding {
+		logical_value, 0, "keine_Fehlerindikation";
+		logical_value, 29, "reserved";
+		logical_value, 30, "reserved";
+		logical_value, 31, "reserved";
+		physical_value, 1, 28, 1, 0, "";
+	}
+	EKK4_Err_Ind_TF_6_12_encoding {
+		logical_value, 0, "keine_Fehlerindikation";
+		logical_value, 29, "reserved";
+		logical_value, 30, "reserved";
+		logical_value, 31, "reserved";
+		physical_value, 1, 28, 1, 0, "";
+	}
+	EKK4_ErrMem_State_encoding {
+		logical_value, 0, "NA_reserved";
+		logical_value, 1, "ErrMem_Active";
+		logical_value, 2, "ErrMem_Init_Progress";
+		logical_value, 3, "ErrMem_Init_Done";
+	}
+	EKK4_HIGH_VOLTAGE_encoding {
+		logical_value, 510, "Init";
+		logical_value, 511, "Fehler";
+		physical_value, 0, 509, 2, 0, "Unit_Volt";
+	}
+	EKK4_INPUT_CURRENT_encoding {
+		logical_value, 254, "Init";
+		logical_value, 255, "Fehler";
+		physical_value, 0, 253, 0.25, 0, "Unit_Amper";
+	}
+	EKK4_INV_TEMP_encoding {
+		logical_value, 254, "Init";
+		logical_value, 255, "Fehler";
+		physical_value, 0, 253, 1, -60, "Unit_DegreCelsi";
+	}
+	EKK4_Level_Rsp_encoding {
+		logical_value, 0, "Ausgabe_Ebene_0";
+		logical_value, 1, "Ausgabe_Ebene_1";
+	}
+	EKK4_Match_encoding {
+		logical_value, 0, "reserved";
+		logical_value, 1, "match";
+		logical_value, 2, "mismatch";
+		logical_value, 3, "Init";
+	}
+	EKK4_MUX_Err_Ind_encoding {
+		logical_value, 0, "Kennnummer_1_7_von_Err_Ind_Err";
+		logical_value, 1, "Kennnummer_8_14_von_Err_Ind_Err";
+		logical_value, 2, "Kennnummer_15_21_von_Err_Ind_Err";
+		logical_value, 3, "Kennnummer_22_28_von_Err_Ind_Err";
+	}
+	EKK4_Number_of_Err_Ind_TF_encoding {
+		logical_value, 0, "keine_Fehlerindikation";
+		logical_value, 13, "reserved";
+		logical_value, 14, "reserved";
+		logical_value, 15, "reserved";
+		physical_value, 1, 12, 1, 0, "";
+	}
+	EKK4_ParameterChange_encoding {
+		logical_value, 0, "no_parameter_change";
+		logical_value, 1, "parameter_change";
+	}
+	EKK4_Reason_Err_Ind_TF_1_7_encoding {
+		logical_value, 0, "kein_Fehlersymptom";
+		physical_value, 1, 7, 1, 0, "";
+	}
+	EKK4_Reason_Err_Ind_TF_2_8_encoding {
+		logical_value, 0, "kein_Fehlersymptom";
+		physical_value, 1, 7, 1, 0, "";
+	}
+	EKK4_Reason_Err_Ind_TF_3_9_encoding {
+		logical_value, 0, "kein_Fehlersymptom";
+		physical_value, 1, 7, 1, 0, "";
+	}
+	EKK4_Reason_Err_Ind_TF_4_10_encoding {
+		logical_value, 0, "kein_Fehlersymptom";
+		physical_value, 1, 7, 1, 0, "";
+	}
+	EKK4_Reason_Err_Ind_TF_5_11_encoding {
+		logical_value, 0, "kein_Fehlersymptom";
+		physical_value, 1, 7, 1, 0, "";
+	}
+	EKK4_Reason_Err_Ind_TF_6_12_encoding {
+		logical_value, 0, "kein_Fehlersymptom";
+		physical_value, 1, 7, 1, 0, "";
+	}
+	EKK4_TF_Change_encoding {
+		physical_value, 0, 1, 1, 0, "";
+	}
+	EKK_COMP_SPEED_encoding {
+		logical_value, 255, "Fehler";
+		physical_value, 0, 254, 50, 0, "Unit_MinutInver";
+	}
+	EKK_COMP_ST_encoding {
+		logical_value, 0, "Comp_Stop";
+		logical_value, 1, "Comp_ON";
+		logical_value, 2, "Comp_Speed_Limited_Operation";
+		logical_value, 3, "Comp_Stop_For_Protection_Automatic_Recovery";
+		logical_value, 4, "Comp_Stop_For_Protection_HV_Shutdown_Required";
+		logical_value, 5, "Comp_Stop_For_Protection_INV_Shutdown";
+		logical_value, 6, "Reserved";
+		logical_value, 7, "Signal_invalid";
+	}
+	EKK_ENB_COMP_encoding {
+		logical_value, 0, "Comp_OFF";
+		logical_value, 1, "Comp_ON";
+		logical_value, 2, "Reserved";
+		logical_value, 3, "Signal_invalid";
+	}
+	EKK_GW_COMM_ERR_encoding {
+		logical_value, 0, "No_error";
+		logical_value, 1, "Internal_communication_error_in_TOGW_line_STB_disconnection";
+	}
+	EKK_HIGH_VOLTAGE_encoding {
+		logical_value, 255, "Init_Not_Avail";
+		physical_value, 0, 254, 2, 0, "Unit_Volt";
+	}
+	EKK_HV_ERR_encoding {
+		logical_value, 0, "No_Error";
+		logical_value, 1, "High_Voltage_too_low";
+		logical_value, 2, "High_Voltage_too_high";
+		logical_value, 3, "Abnormal_High_Voltage";
+	}
+	EKK_HV_ST_encoding {
+		logical_value, 0, "HV_OFF_not_supplied";
+		logical_value, 1, "HV_ON_supplied";
+		logical_value, 2, "Reserved";
+		logical_value, 3, "Signal_invalid";
+	}
+	EKK_INPUT_CURRENT_encoding {
+		logical_value, 255, "Init_Not_Avail";
+		physical_value, 0, 254, 0.25, 0, "Unit_Amper";
+	}
+	EKK_INV_ABN_encoding {
+		logical_value, 0, "No_error";
+		logical_value, 1, "Abnormal_run_up_error";
+	}
+	EKK_INV_COMM_ERR_encoding {
+		logical_value, 0, "No_error";
+		logical_value, 1, "Internal_communication_error_in_TOINV_line_STB_jamming";
+	}
+	EKK_INV_HI_TEMP_encoding {
+		logical_value, 0, "No_Error";
+		logical_value, 1, "Overheat_Warning";
+		logical_value, 2, "Overheat_Stop";
+		logical_value, 3, "Temperature_Sensor_Error";
+	}
+	EKK_INV_LO_TEMP_encoding {
+		logical_value, 0, "No_error";
+		logical_value, 1, "Inverter_temperature_too_low";
+	}
+	EKK_INV_OL_encoding {
+		logical_value, 0, "No_error";
+		logical_value, 1, "Inverter_overload";
+	}
+	EKK_INV_SPD_ABN_encoding {
+		logical_value, 0, "No_error";
+		logical_value, 1, "Inverter_speed_abnormal";
+	}
+	EKK_INV_TEMP_encoding {
+		logical_value, 255, "Init_Not_Avail";
+		physical_value, 0, 254, 1, -127, "Unit_DegreCelsi";
+	}
+	EKK_KL_15_Status_encoding {
+		logical_value, 0, "KL_15_Aus";
+		logical_value, 1, "KL_15_Ein";
+		logical_value, 2, "N_A";
+		logical_value, 3, "Invalid";
+	}
+	EKK_LMT_OP_encoding {
+		logical_value, 0, "No_error";
+		logical_value, 1, "Speed_limited_operation";
+	}
+	EKK_LV_ERR_encoding {
+		logical_value, 0, "No_error";
+		logical_value, 1, "Voltage_too_low";
+		logical_value, 2, "Voltage_too_high";
+		logical_value, 3, "Signal_invalid";
+	}
+	EKK_O_LINE_ERR_encoding {
+		logical_value, 0, "No_Error";
+		logical_value, 1, "Output_line_short_circuit";
+		logical_value, 2, "Output_line_open_circuit";
+		logical_value, 3, "Current_sensor_error";
+	}
+	EKK_PWR_CONS_encoding {
+		logical_value, 255, "Init_Not_Avail";
+		physical_value, 0, 254, 0.04, 0, "Unit_KiloWatt";
+	}
+	EKK_REQ_COMP_SPEED_encoding {
+		logical_value, 255, "Fehler";
+		physical_value, 0, 254, 50, 0, "Unit_MinutInver";
+	}
+	EKK_REQ_COMP_SPEED_HiRes_encoding {
+		logical_value, 1023, "Fehler";
+		physical_value, 0, 1022, 15, 0, "Unit_MinutInver";
+	}
+	EKK_Reserviert1_encoding {
+		logical_value, 0, "reserviert";
+	}
+	EKK_ResponseError_encoding {
+		logical_value, 0, "No_error";
+		logical_value, 1, "Response_error";
+	}
+	EKK_ST_Invalid_encoding {
+		logical_value, 0, "No_error";
+		logical_value, 1, "Inverter_status_invalid";
+	}
+	EKKe_Error_Mask_Nr_encoding {
+		logical_value, 255, "Fehler";
+		physical_value, 0, 254, 1, 0, "";
+	}
+	EKKe_Level_REQ_encoding {
+		logical_value, 0, "Ausgabe_Ebene_0";
+		logical_value, 1, "Ausgabe_Ebene_1";
+	}
+	EKKe_Q_Mask_encoding {
+		logical_value, 0, "nicht_qualifiziert";
+		logical_value, 1, "qualifiziert";
+	}
+	Empfindlichkeit_AQS_encoding {
+		logical_value, 0, "maximal empfindlich";
+		logical_value, 1, "empfindlich";
+		logical_value, 2, "standard empfindlich";
+		logical_value, 3, "unempfindlich";
+		logical_value, 4, "maximal unempfindlich";
+	}
+	ESP_v_Signal_8Bit_encoding {
+		logical_value, 254, "Init";
+		logical_value, 255, "Fehler";
+		physical_value, 0, 253, 2.56, 0, "Unit_KiloMeterPerHour";
+	}
+	FSA_HW_encoding {
+		physical_value, 0, 15, 1, 0, "";
+	}
+	FSA_Luftfeuchte_rel_encoding {
+		logical_value, 253, "nicht_verbaut";
+		logical_value, 254, "Init";
+		logical_value, 255, "Fehler";
+		physical_value, 0, 252, 0.5, 0, "Unit_PerCent";
+	}
+	FSA_SW_encoding {
+		physical_value, 0, 15, 1, 0, "";
+	}
+	FSA_Taupunkt_encoding {
+		logical_value, 1021, "nicht_verbaut";
+		logical_value, 1022, "Init";
+		logical_value, 1023, "Fehler";
+		physical_value, 0, 1000, 0.1, -40, "Unit_DegreCelsi";
+	}
+	FSA_Temp_Luft_encoding {
+		logical_value, 1021, "nicht_verbaut";
+		logical_value, 1022, "Init";
+		logical_value, 1023, "Fehler";
+		physical_value, 0, 1010, 0.1, -40, "Unit_DegreCelsi";
+	}
+	FSA_Temp_Sensor_encoding {
+		logical_value, 2045, "nicht_verbaut";
+		logical_value, 2046, "Init";
+		logical_value, 2047, "Fehler";
+		physical_value, 0, 1300, 0.1, -40, "Unit_DegreCelsi";
+	}
+	Geblaesestufe_encoding {
+		logical_value, 0, "Geblaese aus";
+		logical_value, 1, "Geblaesestufe 10 %";
+		logical_value, 2, "Geblaesestufe 20 %";
+		logical_value, 3, "Geblaesestufe 30 %";
+		logical_value, 4, "Geblaesestufe 40 %";
+		logical_value, 5, "Geblaesestufe 50 %";
+		logical_value, 6, "Geblaesestufe 60 %";
+		logical_value, 7, "Geblaesestufe 70 %";
+		logical_value, 8, "Geblaesestufe 80 %";
+		logical_value, 9, "Geblaesestufe 90 %";
+		logical_value, 10, "Geblaesestufe 100 %";
+		logical_value, 14, "Init";
+		logical_value, 15, "Fehler";
+	}
+	KL_HV_PTC_soll_encoding {
+		logical_value, 254, "Init";
+		logical_value, 255, "Fehler";
+		physical_value, 0, 100, 1, 0, "Unit_PerCent";
+	}
+	Navigationsattribute_encoding {
+		logical_value, 1, "Tunnel Mode";
+		logical_value, 2, "City Mode";
+		logical_value, 3, "Country Mode";
+		logical_value, 4, "Highway Mode";
+		logical_value, 14, "Init";
+		logical_value, 15, "Ungueltig";
+	}
+	PTC_HV_ERR_encoding {
+		logical_value, 0, "No_Error";
+		logical_value, 1, "High_Voltage_too_low";
+		logical_value, 2, "High_Voltage_too_high";
+		logical_value, 3, "Init";
+	}
+	PTC_HV_Heizmedium_Sensor_1_encoding {
+		logical_value, 254, "Init";
+		logical_value, 255, "Fehler";
+		physical_value, 0, 220, 1, -50, "Unit_DegreCelsi";
+	}
+	PTC_HV_Heizmedium_Sensor_2_encoding {
+		logical_value, 254, "Init";
+		logical_value, 255, "Fehler";
+		physical_value, 0, 220, 1, -50, "Unit_DegreCelsi";
+	}
+	PTC_HV_I_ist_encoding {
+		logical_value, 254, "Init";
+		logical_value, 255, "Fehler";
+		physical_value, 0, 253, 0.25, 0, "Unit_Amper";
+	}
+	PTC_HV_Status_PTC_encoding {
+		logical_value, 0, "PTC_OK";
+		logical_value, 1, "PTC_defekt";
+		logical_value, 2, "PTC_error";
+		logical_value, 3, "PTC_degraded_by_HW";
+		logical_value, 4, "PTC_degraded_by_SW";
+		logical_value, 5, "PTC_overheat_protection";
+		logical_value, 6, "not_defined";
+		logical_value, 7, "Init";
+	}
+	PTC_Status_UBatt_encoding {
+		logical_value, 0, "Batterie_OK";
+		logical_value, 1, "Unterspannung";
+		logical_value, 2, "Ueberspannung";
+		logical_value, 3, "Init";
+	}
+	PTC_Temp_PCB_encoding {
+		logical_value, 254, "Init";
+		logical_value, 255, "Fehler";
+		physical_value, 0, 200, 1, -50, "Unit_DegreCelsi";
+	}
+	PTC_TimeOut_Fehler_encoding {
+		logical_value, 0, "no_timeout";
+		logical_value, 1, "timeout_detected";
+	}
+	PTC_UBatt_encoding {
+		logical_value, 254, "Init";
+		logical_value, 255, "Fehler";
+		physical_value, 0, 253, 0.1, 0, "Unit_Volt";
+	}
+	ST_VLD_BLW_CTRL_1_LIN_encoding {
+		logical_value, 1, "Blower Status 1 ungültig, ignorieren";
+	}
+	Umluft_encoding {
+		logical_value, 0, "Frischluft";
+		logical_value, 1, "Teilumluft 10 %";
+		logical_value, 2, "Teilumluft 20 %";
+		logical_value, 3, "Teilumluft 30 %";
+		logical_value, 4, "Teilumluft 40 %";
+		logical_value, 5, "Teilumluft 50 %";
+		logical_value, 6, "Teilumluft 60 %";
+		logical_value, 7, "Teilumluft 70 %";
+		logical_value, 8, "Teilumluft 80 %";
+		logical_value, 9, "Teilumluft 90 %";
+		logical_value, 10, "Umluft";
+		logical_value, 14, "Init";
+		logical_value, 15, "Fehler";
+	}
+	SC_Aus_Ein {
+		logical_value, 0, "Aus";
+		logical_value, 1, "Ein";
+	}
+	SC_Fehler {
+		logical_value, 0, "kein_Fehler";
+		logical_value, 1, "Fehler";
+	}
+	SC_Freigabe {
+		logical_value, 0, "keine_Freigabe";
+		logical_value, 1, "Freigabe";
+	}
+	SC_inaktiv_aktiv {
+		logical_value, 0, "inaktiv";
+		logical_value, 1, "aktiv";
+	}
+	SC_normal_Fehler {
+		logical_value, 0, "normal";
+		logical_value, 1, "Fehler";
+	}
+	SC_OBD_2Bit_V1 {
+		logical_value, 0, "TNCTOC";
+		logical_value, 1, "TP_TC";
+		logical_value, 2, "not_supported";
+		logical_value, 3, "TF_TC";
+	}
+}
+Signal_representation {
+	AQS_COBereich_encoding: AQS_COBereich;
+	AQS_COStatus_encoding: AQS_COStatus;
+	AQS_COWert_encoding: AQS_COWert;
+	AQS_HW_encoding: AQS_HW;
+	AQS_Luftguete_encoding: AQS_Luftguete;
+	AQS_NoxBereich_encoding: AQS_NoxBereich;
+	AQS_NoxStatus_encoding: AQS_NoxStatus;
+	AQS_NoxWert_encoding: AQS_NoxWert;
+	AQS_Parameter_encoding: AQS_Parameter;
+	AQS_SW_encoding: AQS_SW;
+	AQS_Traffic_encoding: AQS_Traffic;
+	Aussentemp_ungef_encoding: Aussentemp_ungef;
+	BLOWER1_HW_encoding: BLOWER1_HW;
+	BLOWER1_IBATT_encoding: BLOWER1_IBATT;
+	BLOWER1_IMAX_MAX_encoding: BLOWER1_IMAX_MAX;
+	BLOWER1_IMAX_MIN_encoding: BLOWER1_IMAX_MIN;
+	BLOWER1_RAMP_encoding: BLOWER1_RAMP;
+	BLOWER1_RX_FREQUENCY_encoding: BLOWER1_RX_FREQUENCY;
+	BLOWER1_SAFETY_SPEED_encoding: BLOWER1_SAFETY_SPEED;
+	BLOWER1_SAFETYRUN_THRESHOLD_encoding: BLOWER1_SAFETYRUN_THRESHOLD;
+	BLOWER1_SELECT_encoding: BLOWER1_SELECT;
+	BLOWER1_SPEED_encoding: BLOWER1_SPEED;
+	BLOWER1_STATUS1_encoding: BLOWER1_STATUS1;
+	BLOWER1_STATUS2_encoding: BLOWER1_STATUS2;
+	BLOWER1_SUPPLIER_encoding: BLOWER1_SUPPLIER;
+	BLOWER1_SW_encoding: BLOWER1_SW;
+	BLOWER1_TEMPERATURE_encoding: BLOWER1_TEMPERATURE;
+	BLOWER1_U_KNEE_encoding: BLOWER1_U_KNEE;
+	BLOWER1_UBATT_encoding: BLOWER1_UBATT;
+	BLOWER1_UMOTOR_encoding: BLOWER1_UMOTOR;
+	DS_HW_encoding: DS_HW;
+	DS_Kaeltemittel_P_encoding: DS_Kaeltemittel_P;
+	DS_SW_encoding: DS_SW;
+	DTS1_interne_Sensor_T_encoding: DTS1_interne_Sensor_T;
+	DTS1_Kaeltemittel_p_encoding: DTS1_Kaeltemittel_p;
+	DTS1_Kaeltemittel_T_encoding: DTS1_Kaeltemittel_T;
+	DTS1_TNCTOC_encoding: DTS1_TNCTOC;
+	EKK3_COMP_SPEED_encoding: EKK3_COMP_SPEED;
+	EKK3_COMP_ST_encoding: EKK3_COMP_ST;
+	EKK3_ErrMem_STATE_encoding: EKK3_ErrMem_STATE;
+	EKK3_HIGH_VOLTAGE_encoding: EKK3_HIGH_VOLTAGE;
+	EKK3_INPUT_CURRENT_encoding: EKK3_INPUT_CURRENT;
+	EKK3_INV_TEMP_encoding: EKK3_INV_TEMP;
+	EKK3_ParameterChange_encoding: EKK3_ParameterChange;
+	EKK3_ResponseError_encoding: EKK3_ResponseError;
+	EKK3_STATE_CURR_SEN_CIRCUIT_encoding: EKK3_STATE_CURR_SEN_CIRCUIT;
+	EKK3_STATE_HV_encoding: EKK3_STATE_HV;
+	EKK3_STATE_HV_Ref_encoding: EKK3_STATE_HV_Ref;
+	EKK3_STATE_INTERNAL_encoding: EKK3_STATE_INTERNAL;
+	EKK3_STATE_INV_ABN_encoding: EKK3_STATE_INV_ABN;
+	EKK3_STATE_INV_ABN_TNCTOC_encoding: EKK3_STATE_INV_ABN_TNCTOC;
+	EKK3_STATE_INV_TEMP_encoding: EKK3_STATE_INV_TEMP;
+	EKK3_STATE_LV_encoding: EKK3_STATE_LV;
+	EKK3_STATE_RPM_SENS_1_encoding: EKK3_STATE_RPM_SENS_1;
+	EKK3_STATE_RPM_SENS_2_encoding: EKK3_STATE_RPM_SENS_2;
+	EKK4_Comp_Error_Mask_Nr_encoding: EKK4_Comp_Error_Mask_Nr;
+	EKK4_COMP_SPEED_encoding: EKK4_COMP_SPEED;
+	EKK4_COMP_ST_encoding: EKK4_COMP_ST;
+	EKK4_Err_Ind_TF_1_7_encoding: EKK4_Err_Ind_TF_1_7;
+	EKK4_Err_Ind_TF_2_8_encoding: EKK4_Err_Ind_TF_2_8;
+	EKK4_Err_Ind_TF_3_9_encoding: EKK4_Err_Ind_TF_3_9;
+	EKK4_Err_Ind_TF_4_10_encoding: EKK4_Err_Ind_TF_4_10;
+	EKK4_Err_Ind_TF_5_11_encoding: EKK4_Err_Ind_TF_5_11;
+	EKK4_Err_Ind_TF_6_12_encoding: EKK4_Err_Ind_TF_6_12;
+	EKK4_ErrMem_State_encoding: EKK4_ErrMem_State;
+	EKK4_HIGH_VOLTAGE_encoding: EKK4_HIGH_VOLTAGE;
+	EKK4_INPUT_CURRENT_encoding: EKK4_INPUT_CURRENT;
+	EKK4_INV_TEMP_encoding: EKK4_INV_TEMP;
+	EKK4_Level_Rsp_encoding: EKK4_Level_Rsp;
+	EKK4_Match_encoding: EKK4_Match;
+	EKK4_MUX_Err_Ind_encoding: EKK4_MUX_Err_Ind;
+	EKK4_Number_of_Err_Ind_TF_encoding: EKK4_Number_of_Err_Ind_TF;
+	EKK4_ParameterChange_encoding: EKK4_ParameterChange;
+	EKK4_Reason_Err_Ind_TF_1_7_encoding: EKK4_Reason_Err_Ind_TF_1_7;
+	EKK4_Reason_Err_Ind_TF_2_8_encoding: EKK4_Reason_Err_Ind_TF_2_8;
+	EKK4_Reason_Err_Ind_TF_3_9_encoding: EKK4_Reason_Err_Ind_TF_3_9;
+	EKK4_Reason_Err_Ind_TF_4_10_encoding: EKK4_Reason_Err_Ind_TF_4_10;
+	EKK4_Reason_Err_Ind_TF_5_11_encoding: EKK4_Reason_Err_Ind_TF_5_11;
+	EKK4_Reason_Err_Ind_TF_6_12_encoding: EKK4_Reason_Err_Ind_TF_6_12;
+	EKK4_TF_Change_encoding: EKK4_TF_Change;
+	EKK_COMP_SPEED_encoding: EKK_COMP_SPEED;
+	EKK_COMP_ST_encoding: EKK_COMP_ST;
+	EKK_ENB_COMP_encoding: EKK_ENB_COMP;
+	EKK_GW_COMM_ERR_encoding: EKK_GW_COMM_ERR;
+	EKK_HIGH_VOLTAGE_encoding: EKK_HIGH_VOLTAGE;
+	EKK_HV_ERR_encoding: EKK_HV_ERR;
+	EKK_HV_ST_encoding: EKK_HV_ST;
+	EKK_INPUT_CURRENT_encoding: EKK_INPUT_CURRENT;
+	EKK_INV_ABN_encoding: EKK_INV_ABN;
+	EKK_INV_COMM_ERR_encoding: EKK_INV_COMM_ERR;
+	EKK_INV_HI_TEMP_encoding: EKK_INV_HI_TEMP;
+	EKK_INV_LO_TEMP_encoding: EKK_INV_LO_TEMP;
+	EKK_INV_OL_encoding: EKK_INV_OL;
+	EKK_INV_SPD_ABN_encoding: EKK_INV_SPD_ABN;
+	EKK_INV_TEMP_encoding: EKK_INV_TEMP;
+	EKK_KL_15_Status_encoding: EKK_KL_15_Status;
+	EKK_LMT_OP_encoding: EKK_LMT_OP;
+	EKK_LV_ERR_encoding: EKK_LV_ERR;
+	EKK_O_LINE_ERR_encoding: EKK_O_LINE_ERR;
+	EKK_PWR_CONS_encoding: EKK_PWR_CONS;
+	EKK_REQ_COMP_SPEED_encoding: EKK_REQ_COMP_SPEED;
+	EKK_REQ_COMP_SPEED_HiRes_encoding: EKK_REQ_COMP_SPEED_HiRes;
+	EKK_Reserviert1_encoding: EKK_Reserviert1;
+	EKK_ResponseError_encoding: EKK_ResponseError;
+	EKK_ST_Invalid_encoding: EKK_ST_Invalid;
+	EKKe_Error_Mask_Nr_encoding: EKKe_Error_Mask_Nr;
+	EKKe_Level_REQ_encoding: EKKe_Level_REQ;
+	EKKe_Q_Mask_encoding: EKKe_Q_Mask;
+	Empfindlichkeit_AQS_encoding: Empfindlichkeit_AQS;
+	ESP_v_Signal_8Bit_encoding: ESP_v_Signal_8Bit;
+	FSA_HW_encoding: FSA_HW;
+	FSA_Luftfeuchte_rel_encoding: FSA_Luftfeuchte_rel;
+	FSA_SW_encoding: FSA_SW;
+	FSA_Taupunkt_encoding: FSA_Taupunkt;
+	FSA_Temp_Luft_encoding: FSA_Temp_Luft;
+	FSA_Temp_Sensor_encoding: FSA_Temp_Sensor;
+	Geblaesestufe_encoding: Geblaesestufe;
+	KL_HV_PTC_soll_encoding: KL_HV_PTC_soll;
+	Navigationsattribute_encoding: Navigationsattribute;
+	PTC_HV_ERR_encoding: PTC_HV_ERR;
+	PTC_HV_Heizmedium_Sensor_1_encoding: PTC_HV_Heizmedium_Sensor_1;
+	PTC_HV_Heizmedium_Sensor_2_encoding: PTC_HV_Heizmedium_Sensor_2;
+	PTC_HV_I_ist_encoding: PTC_HV_I_ist;
+	PTC_HV_Status_PTC_encoding: PTC_HV_Status_PTC;
+	PTC_Status_UBatt_encoding: PTC_Status_UBatt;
+	PTC_Temp_PCB_encoding: PTC_Temp_PCB;
+	PTC_TimeOut_Fehler_encoding: PTC_TimeOut_Fehler;
+	PTC_UBatt_encoding: PTC_UBatt;
+	ST_VLD_BLW_CTRL_1_LIN_encoding: ST_VLD_BLW_CTRL_1_LIN;
+	Umluft_encoding: Umluft;
+	SC_Aus_Ein: AQS_Sensorheizung_Status, KL_PTC_ein, KompressorModus, Scheibenreinigung;
+	SC_Fehler: DTS1_Fehler, DTS1_Kommunikation, DTS1_ResponseError;
+	SC_Freigabe: AQS_Sensorheizung;
+	SC_OBD_2Bit_V1: EKK4_Err_Ind_Nr_1_8_15_22, EKK4_Err_Ind_Nr_2_9_16_23, EKK4_Err_Ind_Nr_3_10_17_24, EKK4_Err_Ind_Nr_4_11_18_25, EKK4_Err_Ind_Nr_5_12_19_26, EKK4_Err_Ind_Nr_6_13_20_27, EKK4_Err_Ind_Nr_7_14_21_28;
+	SC_inaktiv_aktiv: FSA_Sensorheizung_Status, PTC_HV_Err_Temperaturschutz, PTC_HV_Err_Ueberstromabschaltung;
+	SC_normal_Fehler: AQS_ResponseError, BLOWER1_ResponseError, DS_BitError, DS_ChecksumError, DS_DruckError, DS_TempError, EKK4_ResponseError, FSA_ResponseError, PTC_HV_Err_Heizkreis_1, PTC_HV_Err_Heizkreis_2, PTC_HV_Err_Heizkreis_3, PTC_HV_Err_Leckagestrom, PTC_HV_Err_intern, PTC_ResponseError;
+}
