@@ -1,0 +1,11 @@
+---- BMSBattRatedPwrLast Matches (10 in 8 files) ----
+ENM_EnergyConsumptionStatistics.c (a_dualcore_z4_1\src\app):        if ((BMSBattRatedPwrLast <= qY) && (BMSBattRatedPwrLast >= qY_0))
+ENM_model_private.h (a_dualcore_z4_0\src\app):extern uint32_T BMSBattRatedPwrLast;   /* '<S1>/Data Store Memory46' */
+ENM_model_private.h (a_dualcore_z4_1\src\app):extern uint32_T BMSBattRatedPwrLast;   /* '<S1>/Data Store Memory46' */
+History_Data.c (a_dualcore_z4_0\src\hal\nvm):HISTORY_RAM_1_DEF uint32_t BMSBattRatedPwrLast;
+History_Data.c (a_dualcore_z4_0\src\hal\nvm):    BMSBattRatedPwrLast=0xFFFF;
+History_Data.c (a_dualcore_z4_1\src\hal):HISTORY_RAM_1_DEF uint32_t BMSBattRatedPwrLast;
+History_Data.c (a_dualcore_z4_1\src\hal):    BMSBattRatedPwrLast=0xFFFF;
+History_Data.h (a_dualcore_z4_0\src\hal\nvm):extern HISTORY_RAM_1_DEF uint32_t BMSBattRatedPwrLast;
+History_Data.h (a_dualcore_z4_1\src\hal):extern HISTORY_RAM_1_DEF uint32_t BMSBattRatedPwrLast;
+NVM_AppData.c (a_dualcore_z4_0\src\hal\nvm):    // 20/*area1 actual len = 20 */, 32/*area2 actual len = 32 + 4(BMSBattRatedPwrLast)*/, 9 /*area3 actual len = 1+8 +6 */, 126/*area4 actual len = 126 */, 126/*area5 actual len = 126 */

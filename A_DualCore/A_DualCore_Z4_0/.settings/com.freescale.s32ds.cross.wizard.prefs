@@ -1,0 +1,17 @@
+core=MPC5746R_Z4_1
+coreType=MPC5746R_Z4
+eclipse.preferences.version=1
+flashSize=1c0000
+flashStart=1000000
+fpu=None
+groupName=A_DualCore
+io=
+language=c
+library=ewl_c9x
+pinSet=
+processor=MPC5746R
+productVersion=v1.2 b170613 
+ramSize=20000
+ramStart=40000000
+toolchainVersion=
+wizardVersion=1.0.0.201705041237
