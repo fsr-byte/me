@@ -323,6 +323,8 @@ typedef struct
     ScheduleTableEntry DiagRequest[1];             /**< 诊断请求调度表 */
     ScheduleTableEntry DiagResponse[1];            /**< 诊断响应调度表 */
     ScheduleTableEntry DiagFunktionalerRequest[1]; /**< 功能诊断请求调度表 */
+
+    ScheduleTableEntry ScheduleTable_End[1];
 } ScheduleTable;
 
 

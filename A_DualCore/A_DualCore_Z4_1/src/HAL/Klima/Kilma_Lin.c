@@ -5,7 +5,8 @@
 Kilma_Lin Test_Data;
 
 ScheduleTable ScheduleTable_Data =
-  { .st_main =
+  { 
+    .st_main =
     {
       { &(Test_Data.AQSe_01), 10 },
       { &(Test_Data.HV_He_01), 10 },
@@ -23,8 +24,8 @@ ScheduleTable ScheduleTable_Data =
       { &(Test_Data.BLOWER1_STATUS), 10 },
       { &(Test_Data.DTSs_01), 10 },
       { &(Test_Data.EKK3s_01), 20 },
-
-    }, .st_main_nar =
+    }, 
+    .st_main_nar =
     {
       { &(Test_Data.AQSe_01), 10 },
       { &(Test_Data.HV_He_01), 10 },
@@ -41,7 +42,8 @@ ScheduleTable ScheduleTable_Data =
       { &(Test_Data.FSAs_01), 10 },
       { &(Test_Data.BLOWER1_STATUS), 10 },
       { &(Test_Data.DTSs_01), 10 },
-      { &(Test_Data.EKK3s_01), 20 }, }, .st_main_rdw_nar =
+      { &(Test_Data.EKK3s_01), 20 }, }, 
+      .st_main_rdw_nar =
     {
       { &(Test_Data.AQSe_01), 10 },
       { &(Test_Data.HV_He_01), 10 },
@@ -58,7 +60,8 @@ ScheduleTable ScheduleTable_Data =
       { &(Test_Data.FSAs_01), 10 },
       { &(Test_Data.BLOWER1_STATUS), 10 },
       { &(Test_Data.DTSs_01), 10 },
-      { &(Test_Data.EKKs_01), 20 }, }, .st_main_OBD =
+      { &(Test_Data.EKKs_01), 20 }, }, 
+      .st_main_OBD =
     {
       { &(Test_Data.AQSe_01), 10 },
       { &(Test_Data.HV_He_01), 10 },
@@ -75,7 +78,8 @@ ScheduleTable ScheduleTable_Data =
       { &(Test_Data.FSAs_01), 10 },
       { &(Test_Data.BLOWER1_STATUS), 10 },
       { &(Test_Data.DTSs_01), 10 },
-      { &(Test_Data.EKK4s_01), 20 }, }, .st_main2 =
+      { &(Test_Data.EKK4s_01), 20 }, }, 
+      .st_main2 =
     {
       { &(Test_Data.AQSe_01), 10, },
       { &(Test_Data.HV_He_01), 10, },
@@ -92,15 +96,25 @@ ScheduleTable ScheduleTable_Data =
       { &(Test_Data.FSAs_01), 10, },
       { &(Test_Data.BLOWER1_STATUS), 10, },
       { &(Test_Data.DSs_01), 10, },
-      { &(Test_Data.EKK4s_01), 20, }, }, .st_EKK_Fehler =
+      { &(Test_Data.EKK4s_01), 20, }, 
+    }, 
+      .st_EKK_Fehler =
     {
-      { &(Test_Data.EKK4s_02), 10, }, }, .DiagRequest =
+      { &(Test_Data.EKK4s_02), 10, }, 
+    }, 
+      .DiagRequest =
     {
-      { &(Test_Data.MasterReq), 10, }, }, .DiagResponse =
+      { &(Test_Data.MasterReq), 10, }, 
+    }, 
+      .DiagResponse =
     {
-      { &(Test_Data.SlaveResp), 10, }, }, .DiagFunktionalerRequest =
+      { &(Test_Data.SlaveResp), 10, }, 
+    }, 
+      .DiagFunktionalerRequest =
     {
-      { &(Test_Data.ISO_Funktionaler_Req_All), 10, } } };
+      { &(Test_Data.ISO_Funktionaler_Req_All), 10, } 
+    }
+  };
 
 ScheduleTableEntry *pTableEntry = (ScheduleTableEntry *) &ScheduleTable_Data; /**< 指向调度表的指针 */
 uint16_t ScheduleTable_Size; /**< 调度表的大小 */
@@ -163,6 +177,7 @@ Kilma_Lin_Init ()
 
 }
 
+#define run_ms 10
 /**
  * @brief 用于 LIN 总线的发送/接收时间调度
  *
@@ -176,32 +191,32 @@ Schedule_tables_Send ()
   static uint8_t i; /**< 计数器 i */
   static uint8_t j; /**< 计数器 j */
   i++; /**< 增加计数器 i 的值 */
-  if ((pTableEntry[j].delay_time_ms / 10) == i)
-    { /**< 判断是否到达调度时间点 */
+  if ((pTableEntry[j].delay_time_ms / run_ms) <= i)
+  { /**< 判断是否到达调度时间点 */
 
-      if (j >= ScheduleTable_Size -1)
-	{
-	  j = 0;
-	}
-      i = 0; /**< 重置计数器 i 的值 */
-      if (((Frame *) (pTableEntry[j].Tasks))->Send_Flag == Published)
-	{ /**< 判断是否需要发送数据 */
-	  LIN_MasterTxFrame_WithDlc (
-	      ((Frame *) (pTableEntry[j].Tasks))->Frame_id, 8,
-	      ((Frame *) (pTableEntry[j].Tasks))->frame1.raw);
-	}
-      else if (((Frame *) (pTableEntry[j].Tasks))->Send_Flag == Subscribed)
-	{ /**< 判断是否需要接收数据 */
-	  LIN_MasterRxFrame_WithDlc (
-	      ((Frame *) (pTableEntry[j].Tasks))->Frame_id, 8,
-	      &(((Frame *) (pTableEntry[j].Tasks))->frame1.raw));
-	}
-      else
-	{ /**< 未定义的操作 */
-	  // do nothing
-	}
-      j++; /**< 增加计数器 j 的值 */
+    if (((Frame *) (pTableEntry[j].Tasks)) == ScheduleTable_Data.ScheduleTable_End)
+    {
+      j = 0;
     }
+    i = 0; /**< 重置计数器 i 的值 */
+    if (((Frame *) (pTableEntry[j].Tasks))->Send_Flag == Published)
+    { /**< 判断是否需要发送数据 */
+      LIN_MasterTxFrame_WithDlc (
+          ((Frame *) (pTableEntry[j].Tasks))->Frame_id, 8,
+          ((Frame *) (pTableEntry[j].Tasks))->frame1.raw);
+    }
+    else if (((Frame *) (pTableEntry[j].Tasks))->Send_Flag == Subscribed)
+    { /**< 判断是否需要接收数据 */
+      LIN_MasterRxFrame_WithDlc (
+          ((Frame *) (pTableEntry[j].Tasks))->Frame_id, 8,
+          &(((Frame *) (pTableEntry[j].Tasks))->frame1.raw));
+    }
+    else
+    { /**< 未定义的操作 */
+      // do nothing
+    }
+    j++; /**< 增加计数器 j 的值 */
+  }
 }
 
 void
@@ -209,12 +224,12 @@ Lin_Task_App ()
 {
   static uint8_t init_flag;
   if (init_flag == 0)
-    {
-      Kilma_Lin_Init ();
-      init_flag++;
-    }
+  {
+    Kilma_Lin_Init ();
+    init_flag++;
+  }
   else
-    {
-      Schedule_tables_Send ();
-    }
+  {
+    Schedule_tables_Send ();
+  }
 }
