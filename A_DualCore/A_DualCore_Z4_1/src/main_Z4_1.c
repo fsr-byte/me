@@ -15,11 +15,24 @@
 #include "uds_service.h"
 #include "CCP.h"
 #include "EX_Define.h"
+#include "Netif.h"
+#include "Timeouts.h"
 
 #define KEY_VALUE1 0x5AF0ul
 #define KEY_VALUE2 0xA50Ful
 
 extern void xcptn_xmpl(void);
+
+void __read_console(void)
+{}
+
+void __write_console(void)
+{}
+
+void __close_console(void)
+{}
+
+
 
 /* CAN0: µ×ÅÌCAN
  * CAN1: Õï¶ÏCAN
@@ -87,6 +100,8 @@ int main(void)
 #endif
       HAL_Capture_Digital();
 
+	  sys_check_timeouts();
+      (void)enet_poll_interface(&netif);
 
       if(VHALI_SeatHallActiveIn_flg!=hIOP_SeatHall_flg)
       {
@@ -100,6 +115,9 @@ int main(void)
 	  VHALO_TotalLoopTime = temp;
 	}
     }
+
+    /* release the enet interface... */
+    enet_ethernetif_shutdown(&netif);
 }
 
 

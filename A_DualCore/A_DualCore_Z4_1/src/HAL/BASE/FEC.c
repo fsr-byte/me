@@ -199,12 +199,12 @@ void ENET_send_test(void)
      Enetframe->destination[i] = 0xff;
   }
 
-     Enetframe->source[0] = 0x11;
-     Enetframe->source[1] = 0x22;
-     Enetframe->source[2] = 0x33;
-     Enetframe->source[3] = 0x44;
+     Enetframe->source[0] = 0x55;
+     Enetframe->source[1] = 0x55;
+     Enetframe->source[2] = 0x55;
+     Enetframe->source[3] = 0x55;
      Enetframe->source[4] = 0x55;
-     Enetframe->source[5] = 0x66;
+     Enetframe->source[5] = 0x55;
 
      Enetframe->length = 100 - 14;
 
@@ -246,7 +246,7 @@ void  ENET_Cycle (void)
     }
 
     //ENET_send_test();
-    data[0] = 8;
+    //data[0] = 8;
     //Eth_send(1, &data[0], 1);
 }
 

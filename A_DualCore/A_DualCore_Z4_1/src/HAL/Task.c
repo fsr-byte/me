@@ -40,7 +40,7 @@
 #include "TaskLib.h"
 #include "BTK_ESCL.h"
 //#include "BTK_Model.h"
-
+#include "LWIP_TCP.h"
 
 uint64_t lamp_global = 0;
 uint8_t locker_status = 0;
@@ -146,7 +146,7 @@ void Task_Init(void)
     Task_SetMessage(TaskAPPbase, runonce, TaskAPPbase_Control, TaskAPPbase_Function);
     Task_SetMessage(TaskAPPsport, runonce, TaskAPPsport_Control, TaskAPPsport_Function);
     Task_SetMessage(TaskAPPlong, runonce, TaskAPPlong_Control, TaskAPPlong_Function);
-    Task_SetMessage(TaskAPPnetwork, runonce, TaskAPPnetwork_Control, TaskAPPnetwork_Function);
+    Task_SetMessage(TaskAPPnetwork, runalways, TaskAPPnetwork_Control, TaskAPPnetwork_Function);
     Task_SetMessage(TaskAPPout, runonce, TaskAPPout_Control, TaskAPPout_Function);
     Task_SetMessage(TaskExchange, runonce, TaskExchange_Control, TaskExchange_Function);
     Task_SetMessage(TaskHWtest, runonce, TaskHWtest_Control, TaskHWtest_Function);
@@ -1295,8 +1295,19 @@ static uint8_t TaskAPPnetwork_Control(void)
 
     return recode;
 }
+#define PORT 6321
 static void TaskAPPnetwork_Function(void)
 {
+    static uint8_t run_times;
+    if(run_times == 0)
+    {
+	run_times++;
+        TCP_init(PORT);
+    }
+    else
+    {
+        TCP_main();
+    }
     //因时间要求，在中断中调用处理，除了bus off和NoAck的情况
     return;
 }

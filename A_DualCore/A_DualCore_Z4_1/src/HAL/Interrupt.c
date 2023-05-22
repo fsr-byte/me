@@ -16,6 +16,10 @@
 #include "CAN_Operation.h"
 #include "CAN_DBC_Lib.h"
 #include "System.h"
+#include "MPC5746R_features.h"
+#include "Enet_hw_access.h"
+
+
 
 /************************************** for CAN ******/
 
@@ -166,6 +170,21 @@ void INT_ENET_TX_ISR(void)
   EnetTxTick ++;
 
   ENET_SetTxStatusComplete();	//设置发送成功
+
+  ENET_Type *base = s_enetBases[0];
+
+  /* Check if the transmit interrupt happen. */
+  if ((((uint32_t)ENET_TX_BUFFER_INTERRUPT | (uint32_t)ENET_TX_FRAME_INTERRUPT) & base->EIR) != 0U)
+  {
+      /* Callback function. */
+      if (g_enetState[0]->callback != NULL)
+      {
+          g_enetState[0]->callback(0, ENET_TX_EVENT, 0U);
+      }
+      /* Clear the transmit interrupt event. */
+      base->EIR = (uint32_t)ENET_TX_FRAME_INTERRUPT | (uint32_t)ENET_TX_BUFFER_INTERRUPT;
+  }
+	
   FEC.EIR.B.TXF = 1;  //Clear interrupt
 }
 
@@ -174,7 +193,21 @@ void INT_ENET_RX_ISR(void)
   EnetRxTick ++ ;
 
   ENET_CopyRxFrame ();
-  Eth_receive();
+
+  ENET_Type *base = s_enetBases[0];
+
+  /* Check if the receive interrupt happen. */
+  if ((((uint32_t)ENET_RX_BUFFER_INTERRUPT | (uint32_t)ENET_RX_FRAME_INTERRUPT) & base->EIR) != 0U)
+  {
+      /* Callback function. */
+      if (g_enetState[0]->callback != NULL)
+      {
+          g_enetState[0]->callback(0, ENET_RX_EVENT, 0U);
+      }
+      /* Clear the receive interrupt event. */
+      base->EIR = (uint32_t)ENET_RX_FRAME_INTERRUPT | (uint32_t)ENET_RX_BUFFER_INTERRUPT;
+  }
+  //Eth_receive();
   ENET_StartReceive ();
  
 

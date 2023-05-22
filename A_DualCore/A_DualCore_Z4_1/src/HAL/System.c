@@ -36,6 +36,7 @@
 #include "Global.h"
 //#include "BTK_Model.h"
 #include "BTK_ESCL.h"
+#include "Init.h"
 
 extern void PMM_model_initialize(void);
 extern void CheckHLSFaultsPOR(void);
@@ -58,7 +59,10 @@ void Init_System(void)
     eMIOS_Init_All();	//PWM in
     Init_DIO();
     LIN_Init();
-    ENET_Init();	//初始化ENET
+    //ENET_Init();	//初始化ENET
+    lwip_init();
+	/* init network interfaces */
+    enetif_init();
 
     //Modules Initial
     M95128_Init();
