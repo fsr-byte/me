@@ -111,7 +111,7 @@ typedef int sys_prot_t;
 
 extern u32_t sys_now(void);
 
-#if 0
+// #if 0
 #define LWIP_PROVIDE_ERRNO              1
 
 typedef int sys_prot_t;
@@ -137,5 +137,5 @@ typedef int sys_prot_t;
 #define LWIP_RAND() ((u32_t)rand())
 
 #define PPP_INCLUDE_SETTINGS_HEADER
-#endif
+// #endif
 #endif /* LWIP_ARCH_CC_H */
