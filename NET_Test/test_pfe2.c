@@ -85,54 +85,6 @@ void *thread_Lin_Layer(void *thread_id) {
             break;
         }
 
-        // pthread_mutex_lock(&LLC_Protocol_mutex);  // 加锁
-        // if(ret > 14)
-        // {
-        //     memset((uint8_t *)&LLC_Protocol,0,sizeof(ethernet_frame));
-        //     memcpy(LLC_Protocol.destination_mac,&buffer[0],6);
-        //     memcpy(LLC_Protocol.source_mac,&buffer[6],6);
-            
-        //     // 比较接收到的 MAC 地址和需要转发的 MAC 地址是否一致
-        //     if (memcmp(LLC_Protocol.destination_mac, allowed_mac, 6) == 0) 
-        //     {
-        //         LLC_Protocol.lenth = buffer[13]+buffer[12]*256;
-                
-        //         if(LLC_Protocol.lenth > 0 && LLC_Protocol.lenth < MAX_DATA_SIZE)
-        //         {
-        //             memcpy(LLC_Protocol.Data,&buffer[14],LLC_Protocol.lenth);                   
-        //         }
-        //         else
-        //         {
-        //             // 打印接收到的数据帧信息
-        //             printf("Received !!!!!!\n");
-        //             printf("Received %d bytes from interface %d:\n", ret, addr.sll_ifindex);
-        //             printf("Destination MAC address: %02x:%02x:%02x:%02x:%02x:%02x\n", LLC_Protocol.destination_mac[0], LLC_Protocol.destination_mac[1], LLC_Protocol.destination_mac[2], LLC_Protocol.destination_mac[3], LLC_Protocol.destination_mac[4], LLC_Protocol.destination_mac[5]);
-        //             printf("Source MAC address: %02x:%02x:%02x:%02x:%02x:%02x\n", LLC_Protocol.source_mac[0], LLC_Protocol.source_mac[1], LLC_Protocol.source_mac[2], LLC_Protocol.source_mac[3], LLC_Protocol.source_mac[4], LLC_Protocol.source_mac[5]);
-        //             printf("Ethernet lenth: %02x%02x\n", buffer[13], buffer[12],buffer[11], buffer[10]);
-        //             printf("Data: ");
-        //             for (int i = 0; i < ret; i++) {
-        //                 printf("%02x ",buffer[i]);
-        //             }
-        //             printf("\n");                    
-        //         }
-        //     }
-        // }
-        // pthread_mutex_unlock(&LLC_Protocol_mutex);  // 解锁
-
-        // 打印接收到的数据帧信息
-
-        // printf("Received !!!!!!\n");
-        // printf("Received %d bytes from interface %d:\n", ret, addr.sll_ifindex);
-        // printf("Destination MAC address: %02x:%02x:%02x:%02x:%02x:%02x\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
-        // printf("Source MAC address: %02x:%02x:%02x:%02x:%02x:%02x\n", buffer[6], buffer[7], buffer[8], buffer[9],buffer[10], buffer[11]);
-        // printf("Ethernet lenth: %02x%02x\n", buffer[12], buffer[13]);
-        // printf("Data: ");
-        // for (int i = 0; i < ret; i++) {
-        //     printf("%02x ",buffer[i]);
-        // }
-        // printf("\n");
-
-
         memcpy(LLC_Protocol.source_mac,&buffer[6],6);
         if (memcmp(LLC_Protocol.source_mac, allowed_mac, 6) == 0) 
         {

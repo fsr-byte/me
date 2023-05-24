@@ -38,22 +38,31 @@ pthread_mutex_t LLC_Protocol_mutex = PTHREAD_MUTEX_INITIALIZER;  // 初始化互斥锁
 pthread_t send_tid, recv_tid,close_tid;  //初始化send,recv,close线程
 volatile int thread_should_eixt = 0;  // 线程退出标志
 struct sockaddr_in servaddr;  // 服务器地址
-uint8_t Keep_alive[8] = {0x88};  // 保活帧
+uint8_t Keep_alive[8] = {0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x08};  // 保活帧
 uint32_t Net_count = 0;  // 网络存活计数器
 
 int Net_kill(int *sockfd) {
     // 关闭 TCP 连接
     close(*sockfd);
-
+    printf("kill close\n");
     // 设置线程退出标志
     thread_should_eixt = 2;
 
-    // 等待线程自己结束
-    pthread_join(send_tid, NULL);
-    pthread_join(recv_tid, NULL);
+    // 等待 send_tid 线程结束
+    if (!pthread_equal(pthread_self(), send_tid)) {
+        pthread_cancel(send_tid);
+        pthread_join(send_tid, NULL);
+    }
+
+    // 等待 recv_tid 线程结束
+    if (!pthread_equal(pthread_self(), recv_tid)) {
+        pthread_cancel(recv_tid);
+        pthread_join(recv_tid, NULL);
+    }
 
     // 清除线程退出标志
     thread_should_eixt = 0;
+    printf("kill over\n");
     return 1;
 }
 
@@ -71,7 +80,7 @@ void *thread_Lin_Layer(void *thread_id) {
         perror("socket");
         exit(EXIT_FAILURE);
     }
-    printf("sockfd ok!!\n");
+    // printf("sockfd ok!!\n");
     
     // 获取网络接口索引
     struct ifreq ifr;
@@ -83,7 +92,7 @@ void *thread_Lin_Layer(void *thread_id) {
         perror("ioctl");
         exit(EXIT_FAILURE);
     }
-    printf("ioctl ret : %d\n",ret);
+    // printf("ioctl ret : %d\n",ret);
 
     // 绑定 socket 到指定网络接口
     memset(&addr, 0, sizeof(addr));
@@ -97,7 +106,7 @@ void *thread_Lin_Layer(void *thread_id) {
         exit(EXIT_FAILURE);
     }
 
-    printf("bind ret : %d\n",ret);
+    // printf("bind ret : %d\n",ret);
 
     while (1) {
         // 接收数据帧
@@ -143,14 +152,15 @@ void *send_thread(void *arg) {
     int sockfd = *((int *)arg);
     uint8_t data[64] = {0xFE};
     while (1) {
-        if(thread_should_eixt == 2)
+        if(thread_should_eixt)
         {
+            printf("return send_thread!\n");
             return NULL;            
         }
         pthread_mutex_lock(&LLC_Protocol_mutex);  // 加锁
         if(LLC_Protocol.lenth> 0)
         {
-            printf("Send:%d,%02x %02x\n",LLC_Protocol.lenth,LLC_Protocol.Data[0],LLC_Protocol.Data[1]);  
+            // printf("Send:%d,%02x %02x\n",LLC_Protocol.lenth,LLC_Protocol.Data[0],LLC_Protocol.Data[1]);  
             if(LLC_Protocol.lenth < MAX_DATA_SIZE)
             {
                 int n =send(sockfd, LLC_Protocol.Data, LLC_Protocol.lenth, 0);
@@ -173,12 +183,18 @@ void *recv_thread(void *arg) {
     int sockfd = *((int *)arg);
     int n;
     while (1) {
-        if(thread_should_eixt == 2)
+        if(thread_should_eixt)
         {
+            printf("return recv_thread!\n");
             return NULL;            
+        }
+        else
+        {
+            // printf("thread_should_eixt:%d\n",thread_should_eixt);
         }
         memset(recv_buf, 0, sizeof(recv_buf));
         n = recv(sockfd, recv_buf, sizeof(recv_buf), 0);
+        printf("recv!!!!!!!!\n");
         if (n < 0) {
             if (errno == EWOULDBLOCK || errno == EAGAIN) {
                 printf("recv timeout\n");
@@ -189,14 +205,14 @@ void *recv_thread(void *arg) {
         }
         else
         {
+            for (int i = 0; i < n; i++) {
+                printf("%02x ",recv_buf[i]);
+            }
+            printf("\n");
+            // printf("Received message: %d", recv_buf);
             Net_count = 0;
         }
-
-        if(Net_count > 10000)
-        {
-            thread_should_eixt = 1;
-        }
-        printf("Received message: %s", recv_buf);
+        
     }
     thread_should_eixt = 1;
     return NULL;
@@ -212,8 +228,8 @@ void tcp_connect(int *sockfd)
 
     int optval;
     socklen_t optlen = sizeof(optval);
-
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    printf("connect start\n");
+    *sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
         perror("socket creation failed");
         exit(0);
@@ -227,6 +243,7 @@ void tcp_connect(int *sockfd)
         perror("inet_pton failed");
         exit(0);
     }
+    printf("inet_pton\n");
 
     while (1) {
         if (connect(*sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) >= 0) {
@@ -241,12 +258,12 @@ void tcp_connect(int *sockfd)
     }
 
     Net_count = 0;
-    if (pthread_create(&send_tid, NULL, send_thread, (void *)&sockfd) != 0) {
+    if (pthread_create(&send_tid, NULL, send_thread, (void *)sockfd) != 0) {
         perror("send thread creation failed");
         exit(0);
     }
 
-    if (pthread_create(&recv_tid, NULL, recv_thread,(void *)&sockfd) != 0) {
+    if (pthread_create(&recv_tid, NULL, recv_thread,(void *)sockfd) != 0) {
         perror("recv thread creation failed");
         exit(0);
     }
@@ -257,8 +274,8 @@ void *thread_tcp(void *thread_id){
     int sockfd;
 
     // 关闭旧的socket
-    if (*sockfd != -1) {
-        close(*sockfd);
+    if (sockfd != -1) {
+        close(sockfd);
     }
     
     tcp_connect(&sockfd);
@@ -267,7 +284,9 @@ void *thread_tcp(void *thread_id){
     {
         if(thread_should_eixt)
         {
+            printf("thread_kill!!!\n");
             Net_kill(&sockfd);
+            printf("thread_kill123213!!!\n");
             tcp_connect(&sockfd);
         }
 
@@ -283,11 +302,11 @@ void *timer_thread(void *thread_id){
 
     while(1)
     {
-        Net_count ++;
         nanosleep(&ts, NULL);
-
-        if(Net_count % 1000 == 0)
+        Net_count ++;
+        if(Net_count % 1000 == 0 && Net_count != 0)
         {
+            printf("Net_count:%ld\n",Net_count);
             pthread_mutex_lock(&LLC_Protocol_mutex);  // 加锁
             if(LLC_Protocol.lenth ==  0)
             {
@@ -295,6 +314,10 @@ void *timer_thread(void *thread_id){
                 memcpy(LLC_Protocol.Data,Keep_alive,8);
             }
             pthread_mutex_unlock(&LLC_Protocol_mutex);  // 解锁
+        }
+        if(Net_count > 10000)
+        {
+            thread_should_eixt = 1;
         }
     }
 }
@@ -342,4 +365,3 @@ int main()
     return 0;
 }
 
-}
